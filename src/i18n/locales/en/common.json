@@ -1,0 +1,15 @@
+{
+  "meta": {
+    "title": "Gîte chez Martin",
+    "description": "A charming country retreat — authentic hospitality in the French countryside."
+  },
+  "loading": "Loading…",
+  "error": {
+    "title": "Something went wrong",
+    "retry": "Try again"
+  },
+  "nav": {
+    "book": "Book",
+    "contact": "Contact"
+  }
+}

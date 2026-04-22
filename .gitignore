@@ -1,0 +1,35 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Dependencies
+node_modules
+studio/node_modules
+
+# Build output
+dist
+dist-ssr
+studio/dist
+
+# Sanity
+.sanity
+studio/.sanity
+
+# Editor
+.vscode/*
+!.vscode/extensions.json
+.idea
+*.iml
+.DS_Store
+*.local
+
+# Env
+.env
+.env.local
+.env.*.local
+studio/.env
+studio/.env.local
