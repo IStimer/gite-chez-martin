@@ -56,9 +56,9 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
-  // `clip` instead of `hidden` prevents creating a scroll container
-  // while still hiding decorative elements bleeding horizontally.
-  overflow-x: clip;
+  // NOTE: no `overflow-x` on body — both `hidden` and `clip` create a
+  // scroll-context that breaks `position: sticky` on descendants.
+  // Horizontal bleed is handled per-section via `overflow: hidden`.
 }
 
 ::selection {

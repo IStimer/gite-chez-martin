@@ -1,144 +1,288 @@
-@use '../abstracts/variables' as *;
+@use "../abstracts/variables" as *;
 
 .testimonials {
-  padding-block: var(--section-padding-y);
-  background: var(--color-bg);
+    padding-block: var(--section-padding-y);
+    background: var(--color-bg);
 
-  &__carousel {
-    max-width: 760px;
-    margin-inline: auto;
-    overflow: hidden;
-  }
-
-  &__track {
-    display: flex;
-    transition: transform 0.9s $ease-out-expo;
-  }
-
-  &__slide {
-    flex: 0 0 100%;
-    padding: 0 var(--space-s);
-  }
-
-  &__controls {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--space-m);
-    margin-top: var(--space-xl);
-  }
-
-  &__nav {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    background: transparent;
-    border: 1px solid var(--color-primary-faded);
-    color: var(--color-primary);
-    font-size: 24px;
-    line-height: 1;
-    cursor: pointer;
-    transition: background 0.2s, border-color 0.2s;
-
-    &:hover {
-      background: var(--color-primary);
-      color: var(--color-secondary);
-      border-color: var(--color-primary);
+    &__inner {
+        display: flex;
+        flex-direction: column;
+        gap: clamp(40px, 5vh, 80px);
+        padding-inline: var(--edge-padding);
     }
-  }
 
-  &__dots {
-    display: flex;
-    gap: var(--space-2xs);
-  }
-
-  &__dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    border: none;
-    background: var(--color-primary-faded);
-    cursor: pointer;
-    transition: background 0.3s, transform 0.3s;
-
-    &.is-active {
-      background: var(--color-primary);
-      transform: scale(1.4);
+    // ── Section header ────────────────────────────────────────────────
+    &__head {
+        display: flex;
+        flex-direction: column;
+        gap: clamp(18px, 2vh, 32px);
+        max-width: 960px;
     }
-  }
 
-  &__grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: var(--space-l);
+    &__eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: clamp(10px, 1vw, 18px);
+        font-family: var(--font-body);
+        font-size: clamp(11px, 0.85vw, 13px);
+        font-weight: 600;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: var(--color-accent);
+        margin: 0;
+    }
 
-    @media (max-width: $bp-tablet) { grid-template-columns: repeat(2, 1fr); }
-    @media (max-width: 640px)      { grid-template-columns: 1fr; }
-  }
+    &__eyebrow-mark {
+        width: clamp(22px, 2vw, 32px);
+        height: clamp(22px, 2vw, 32px);
+        color: var(--color-accent);
+        flex-shrink: 0;
+    }
+
+    &__title {
+        font-family: var(--font-display);
+        font-weight: 400;
+        color: var(--color-primary);
+        font-size: clamp(44px, 7vw, 128px);
+        line-height: 0.98;
+        letter-spacing: -0.015em;
+        margin: 0;
+    }
+
+    &__intro {
+        color: var(--color-fg);
+        font-size: clamp(15px, 1.2vw, 18px);
+        line-height: 1.65;
+        max-width: 640px;
+        margin: 0;
+    }
+
+    // ── Row: one horizontal strip — active expands to take the slack,
+    //    others sit side-by-side in collapsed form. Changing `active`
+    //    animates the flex-basis transition for a smooth slide.
+    &__row {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        align-items: stretch;
+        gap: clamp(10px, 1vw, 18px);
+        min-height: clamp(220px, 28vh, 320px);
+
+        @media (max-width: $bp-tablet) {
+            flex-wrap: wrap;
+        }
+    }
 }
 
+// ── Testimonial item ───────────────────────────────────────────────────
 .testimonial {
-  padding: var(--space-xl) var(--space-l);
-  background: var(--color-secondary);
-  border-radius: 4px;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-m);
-  position: relative;
+    position: relative;
+    // Compact/collapsed width by default
+    flex: 0 0 clamp(140px, 16vw, 220px);
+    transition:
+        flex-basis 0.8s cubic-bezier(0.87, 0, 0.13, 1),
+        flex-grow 0.8s cubic-bezier(0.87, 0, 0.13, 1),
+        background 0.45s,
+        border-color 0.45s,
+        box-shadow 0.45s;
+    background: var(--color-secondary);
+    border: 1px solid transparent;
+    overflow: hidden;
 
-  // Decorative quote mark
-  &::before {
-    content: '"';
-    position: absolute;
-    top: 4px; left: 20px;
-    font-family: var(--font-display);
-    font-size: 96px;
-    line-height: 1;
-    color: var(--color-accent);
-    opacity: 0.3;
-  }
+    // Expanded state — takes all remaining horizontal slack
+    &--active {
+        flex: 1 1 0;
+        background: #ffffff;
+        border-color: rgba(31, 58, 46, 0.1);
+        box-shadow: 0 18px 40px rgba(31, 58, 46, 0.08);
+    }
 
-  &__stars {
-    display: inline-flex;
-    gap: 2px;
-    color: var(--color-accent);
-  }
+    &__btn {
+        all: unset;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: clamp(10px, 1.2vw, 18px);
+        width: 100%;
+        height: 100%;
+        padding: clamp(16px, 1.8vw, 28px);
+        cursor: pointer;
+        color: inherit;
+        text-align: left;
+        box-sizing: border-box;
+        transition: padding 0.8s cubic-bezier(0.87, 0, 0.13, 1);
 
-  &__body {
-    font-family: var(--font-display);
-    font-size: clamp(18px, 1.8vw, 22px);
-    line-height: 1.5;
-    color: var(--color-primary);
-    font-style: italic;
+        &:focus-visible {
+            outline: 2px solid var(--color-accent);
+            outline-offset: -4px;
+        }
+    }
 
-    p { margin: 0; }
-  }
+    &--active &__btn {
+        gap: clamp(14px, 1.6vw, 24px);
+    }
 
-  &__meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    align-items: baseline;
-    padding-top: var(--space-s);
-    border-top: 1px solid var(--color-border);
-  }
+    // ── Head (avatar + name + stars) — always visible ────────────────
+    &__head {
+        display: flex;
+        align-items: center;
+        gap: clamp(10px, 1.1vw, 16px);
+        width: 100%;
+    }
 
-  &__author {
-    font-weight: 600;
-    color: var(--color-primary);
-    font-size: 14px;
-  }
+    &__head-text {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        min-width: 0;
+    }
 
-  &__origin {
-    color: var(--color-muted);
-    font-size: 13px;
-  }
+    &__avatar {
+        width: clamp(40px, 3.4vw, 52px);
+        height: clamp(40px, 3.4vw, 52px);
+        object-fit: cover;
+        flex-shrink: 0;
+        background: var(--color-primary);
+        display: block;
+    }
 
-  &__source {
-    color: var(--color-muted);
-    font-size: 12px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    opacity: 0.7;
-  }
+    &__avatar--placeholder {
+        display: grid;
+        place-items: center;
+        color: var(--color-secondary);
+        font-family: var(--font-display);
+        font-size: clamp(14px, 1.2vw, 18px);
+        font-weight: 500;
+        letter-spacing: 0.02em;
+    }
+
+    &__name {
+        font-family: var(--font-body);
+        font-size: clamp(13px, 1vw, 15px);
+        font-weight: 600;
+        color: var(--color-primary);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+    }
+
+    &__stars {
+        display: inline-flex;
+        gap: 2px;
+        color: var(--color-accent);
+
+        svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        &--sm svg {
+            width: 10px;
+            height: 10px;
+        }
+    }
+
+    // ── Body — always visible, height-animated reveal ────────────────
+    // max-height + font-size transitions (both interpolatable) so the
+    // text grows smoothly instead of flashing in.
+    &__body {
+        font-family: var(--font-body);
+        font-weight: 400;
+        font-style: normal;
+        font-size: clamp(12px, 0.9vw, 13px);
+        line-height: 1.5;
+        color: var(--color-muted);
+        margin: 0;
+        width: 100%;
+        min-width: 0;
+        max-height: 64px;
+        overflow: hidden;
+        transition:
+            max-height 0.8s cubic-bezier(0.87, 0, 0.13, 1),
+            font-size 0.8s cubic-bezier(0.87, 0, 0.13, 1),
+            color 0.4s;
+    }
+
+    &--active &__body {
+        font-size: clamp(15px, 1.1vw, 17px);
+        line-height: 1.65;
+        color: var(--color-fg);
+        max-height: clamp(180px, 24vh, 280px);
+        overflow-y: auto;
+        scrollbar-width: thin;
+    }
+
+    // ── Sub meta (origin · date · source) ────────────────────────────
+    &__sub {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-family: var(--font-body);
+        font-size: clamp(10px, 0.75vw, 12px);
+        color: var(--color-muted);
+        flex-wrap: wrap;
+        opacity: 0.85;
+        letter-spacing: 0.02em;
+        width: 100%;
+    }
+
+    &--active &__sub {
+        font-size: clamp(11px, 0.85vw, 13px);
+        opacity: 1;
+    }
+
+    &__sub-dot {
+        opacity: 0.5;
+    }
+
+    &__source {
+        font-size: 10px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--color-accent);
+        font-weight: 600;
+    }
+
+    // ── Auto-advance progress bar at the bottom of the active card ──
+    &__progress {
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        height: 2px;
+        width: 0;
+        background: var(--color-accent);
+        animation: testimonialProgress linear forwards;
+        pointer-events: none;
+    }
+
+    // ── Collapsed hover state ───────────────────────────────────────
+    &:not(.testimonial--active):hover {
+        background: #ffffff;
+        border-color: rgba(31, 58, 46, 0.12);
+    }
+
+    // ── Mobile / tablet: single stack, active expands vertically ────
+    @media (max-width: $bp-tablet) {
+        flex: 1 1 100%;
+        min-height: auto;
+
+        &--active {
+            flex: 1 1 100%;
+        }
+
+        &__btn {
+            padding: clamp(14px, 3vw, 22px);
+        }
+    }
+}
+
+@keyframes testimonialProgress {
+    from {
+        width: 0%;
+    }
+    to {
+        width: 100%;
+    }
 }

@@ -1,143 +1,469 @@
-@use '../abstracts/variables' as *;
+@use "../abstracts/variables" as *;
 
 .gallery {
-  padding-block: var(--section-padding-y);
-  background: var(--color-bg);
-
-  &__grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    grid-auto-rows: 180px;
-    gap: var(--space-2xs);
-
-    @media (max-width: $bp-tablet) {
-      grid-template-columns: repeat(3, 1fr);
-      grid-auto-rows: 160px;
-    }
-    @media (max-width: 640px) {
-      grid-template-columns: repeat(2, 1fr);
-      grid-auto-rows: 140px;
-    }
-  }
-
-  &__item {
-    position: relative;
-    overflow: hidden;
+    // Slightly tighter than the default section rhythm
+    padding-block: clamp(56px, 8vw, 112px);
     background: var(--color-secondary);
-    background-size: cover;
-    background-position: center;
-    border: none;
-    padding: 0;
-    cursor: zoom-in;
-    grid-row: span 1;
 
-    &--tall { grid-row: span 2; }
-    &--wide { grid-column: span 2; @media (max-width: 640px) { grid-column: span 1; } }
-
-    img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: transform 0.8s $ease-out-expo, filter 0.5s;
+    &__inner {
+        display: flex;
+        flex-direction: column;
+        gap: clamp(32px, 5vh, 72px);
+        padding-inline: var(--edge-padding);
     }
 
-    &:hover {
-      img { transform: scale(1.06); filter: brightness(1.02); }
-      .gallery__item-hover { opacity: 1; }
+    // ── Section header ────────────────────────────────────────────────
+    &__head {
+        display: flex;
+        flex-direction: column;
+        gap: clamp(18px, 2vh, 32px);
+        max-width: 960px;
     }
-  }
 
-  &__item-hover {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(31, 58, 46, 0.3);
-    opacity: 0;
-    transition: opacity 0.3s $ease-out-expo;
-  }
+    &__eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: clamp(10px, 1vw, 18px);
+        font-family: var(--font-body);
+        font-size: clamp(11px, 0.85vw, 13px);
+        font-weight: 600;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: var(--color-accent);
+        margin: 0;
+    }
 
-  &__item-plus {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    background: var(--color-accent);
-    color: var(--color-primary);
-    font-size: 24px;
-    font-weight: 300;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
+    &__eyebrow-mark {
+        width: clamp(22px, 2vw, 32px);
+        height: clamp(22px, 2vw, 32px);
+        color: var(--color-accent);
+        flex-shrink: 0;
+    }
+
+    &__title {
+        font-family: var(--font-display);
+        font-weight: 400;
+        color: var(--color-primary);
+        font-size: clamp(44px, 7vw, 128px);
+        line-height: 0.98;
+        letter-spacing: -0.015em;
+        margin: 0;
+    }
+
+    &__intro {
+        color: var(--color-fg);
+        font-size: clamp(15px, 1.2vw, 18px);
+        line-height: 1.65;
+        max-width: 640px;
+        margin: 0;
+    }
+
+    // ── Viewer: main stage with thumbnail row below ──────────────────
+    &__viewer {
+        display: flex;
+        flex-direction: column;
+        gap: clamp(12px, 1.4vw, 22px);
+        max-width: 100%;
+    }
+
+    // ── Thumbnails (horizontal row below the stage) ──────────────────
+    &__thumbs {
+        display: flex;
+        flex-direction: row;
+        gap: clamp(6px, 0.6vw, 10px);
+        overflow-x: auto;
+        scrollbar-width: none;
+        padding-bottom: 2px;
+        &::-webkit-scrollbar {
+            display: none;
+        }
+    }
+
+    &__thumb {
+        border: none;
+        background: none;
+        padding: 0;
+        cursor: pointer;
+        width: clamp(56px, 5.4vw, 88px);
+        aspect-ratio: 4 / 5;
+        overflow: hidden;
+        flex-shrink: 0;
+        opacity: 0.45;
+        filter: grayscale(0.2);
+        transition:
+            opacity 0.35s $ease-out-expo,
+            filter 0.35s,
+            transform 0.3s;
+        position: relative;
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        &:hover {
+            opacity: 0.85;
+            filter: grayscale(0);
+        }
+
+        &.is-active {
+            opacity: 1;
+            filter: grayscale(0);
+
+            &::after {
+                content: "";
+                position: absolute;
+                inset: 0;
+                border: 2px solid var(--color-accent);
+                pointer-events: none;
+            }
+        }
+
+        &:disabled {
+            cursor: wait;
+            pointer-events: none;
+        }
+
+        @media (max-width: $bp-mobile) {
+            width: 52px;
+        }
+    }
+
+    // ── Stage: main image with clip-path travelling transitions ──────
+    &__stage {
+        position: relative;
+        aspect-ratio: 16 / 9;
+        overflow: hidden;
+        background: var(--color-primary);
+        cursor: zoom-in;
+        isolation: isolate;
+        min-width: 0;
+        max-width: 100%;
+
+        &:focus-visible {
+            outline: 2px solid var(--color-accent);
+            outline-offset: 3px;
+        }
+
+        @media (max-width: $bp-mobile) {
+            aspect-ratio: 4 / 3;
+        }
+    }
+
+    &__slide {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        will-change: clip-path;
+    }
+
+    // The base image is always fully visible. The overlay sits on top and
+    // animates its clip-path in, replacing the base when the animation ends.
+    &__slide--base {
+        z-index: 1;
+    }
+
+    &__slide--overlay {
+        z-index: 2;
+    }
+
+    // Direction-aware clip-path "travelling" reveal for the overlay.
+    // Right arrow → new image opens FROM the right edge, sweeping leftward.
+    // Left arrow  → new image opens FROM the left edge, sweeping rightward.
+    &__slide--overlay.gallery__slide--right {
+        animation: gallerySlideFromRight 0.85s cubic-bezier(0.87, 0, 0.13, 1)
+            forwards;
+    }
+
+    &__slide--overlay.gallery__slide--left {
+        animation: gallerySlideFromLeft 0.85s cubic-bezier(0.87, 0, 0.13, 1)
+            forwards;
+    }
+
+    // ── Caption (bottom-left of stage) ────────────────────────────────
+    &__caption {
+        position: absolute;
+        bottom: clamp(16px, 2vw, 32px);
+        left: clamp(16px, 2vw, 32px);
+        max-width: 50%;
+        z-index: 3;
+        padding: clamp(8px, 0.8vw, 14px) clamp(12px, 1.2vw, 20px);
+        background: rgba(31, 58, 46, 0.72);
+        backdrop-filter: blur(6px);
+        color: #ffffff;
+        font-family: var(--font-display);
+        font-style: italic;
+        font-size: clamp(13px, 1vw, 16px);
+        line-height: 1.35;
+        letter-spacing: 0;
+        pointer-events: none;
+        margin: 0;
+    }
+
+    &__caption-text {
+        display: block;
+    }
+
+    // ── View-all hint (top-left, only visible on hover) ──────────────
+    &__view-all-hint {
+        position: absolute;
+        top: clamp(16px, 2vw, 32px);
+        left: clamp(16px, 2vw, 32px);
+        z-index: 3;
+        font-family: var(--font-body);
+        font-size: clamp(10px, 0.8vw, 12px);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.2em;
+        color: #ffffff;
+        opacity: 0;
+        transform: translateY(-4px);
+        transition: opacity 0.3s, transform 0.3s;
+        pointer-events: none;
+        padding: 6px 10px;
+        background: rgba(31, 58, 46, 0.7);
+        backdrop-filter: blur(4px);
+    }
+
+    &__stage:hover &__view-all-hint {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    // ── Controls (bottom-right: counter + arrows) ────────────────────
+    &__controls {
+        position: absolute;
+        bottom: clamp(16px, 2vw, 32px);
+        right: clamp(16px, 2vw, 32px);
+        z-index: 4;
+        display: flex;
+        align-items: center;
+        gap: clamp(14px, 1.6vw, 24px);
+        pointer-events: auto;
+    }
+
+    &__counter {
+        display: inline-flex;
+        align-items: baseline;
+        gap: 4px;
+        font-family: var(--font-display);
+        font-style: italic;
+        font-size: clamp(16px, 1.3vw, 22px);
+        color: #ffffff;
+        text-shadow: 0 2px 16px rgba(0, 0, 0, 0.4);
+        letter-spacing: -0.01em;
+    }
+
+    &__counter-num {
+        color: #ffffff;
+    }
+
+    &__counter-sep {
+        color: var(--color-accent);
+        margin: 0 2px;
+    }
+
+    &__counter-total {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.75em;
+    }
+
+    &__arrows {
+        display: flex;
+        gap: clamp(8px, 1vw, 14px);
+    }
+
+    &__arrow {
+        width: clamp(48px, 4vw, 64px);
+        height: clamp(48px, 4vw, 64px);
+        border-radius: 50%;
+        background: #ffffff;
+        border: none;
+        cursor: pointer;
+        display: grid;
+        place-items: center;
+        color: var(--color-primary);
+        box-shadow: 0 8px 28px rgba(0, 0, 0, 0.2);
+        transition:
+            background 0.3s $ease-out-expo,
+            color 0.3s $ease-out-expo,
+            transform 0.3s $ease-out-expo,
+            box-shadow 0.3s $ease-out-expo;
+
+        svg {
+            width: 38%;
+            height: 38%;
+        }
+
+        &:hover {
+            background: var(--color-accent);
+            color: var(--color-primary);
+            transform: translateY(-2px);
+            box-shadow: 0 14px 34px rgba(0, 0, 0, 0.25);
+        }
+
+        &:active {
+            transform: translateY(0);
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--color-accent);
+            outline-offset: 2px;
+        }
+
+        &:disabled {
+            cursor: wait;
+            pointer-events: none;
+            opacity: 0.55;
+        }
+    }
+
+    // ── Grid takeover overlay (click on stage to reveal all images) ──
+    &__grid-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 200;
+        background: rgba(26, 26, 26, 0.94);
+        backdrop-filter: blur(14px);
+        padding: clamp(48px, 6vw, 96px) clamp(24px, 4vw, 64px);
+        overflow-y: auto;
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        animation: galleryOverlayIn 0.4s ease-out;
+    }
+
+    &__grid-close {
+        position: fixed;
+        top: clamp(16px, 2.5vw, 40px);
+        right: clamp(16px, 2.5vw, 40px);
+        width: clamp(44px, 3.5vw, 56px);
+        height: clamp(44px, 3.5vw, 56px);
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.12);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: #ffffff;
+        cursor: pointer;
+        display: grid;
+        place-items: center;
+        z-index: 210;
+        transition: background 0.25s, transform 0.25s, border-color 0.25s;
+
+        svg {
+            width: 40%;
+            height: 40%;
+        }
+
+        &:hover {
+            background: var(--color-accent);
+            color: var(--color-primary);
+            border-color: var(--color-accent);
+            transform: scale(1.05);
+        }
+    }
+
+    &__grid-inner {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: clamp(10px, 1.2vw, 20px);
+        width: 100%;
+        max-width: 1400px;
+
+        @media (max-width: 640px) {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    &__grid-item {
+        position: relative;
+        border: none;
+        background: none;
+        padding: 0;
+        cursor: pointer;
+        aspect-ratio: 1;
+        overflow: hidden;
+        transition: transform 0.3s $ease-out-expo;
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.7s $ease-out-expo, filter 0.35s;
+        }
+
+        &::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: rgba(26, 26, 26, 0.15);
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+
+        &:hover {
+            img {
+                transform: scale(1.06);
+            }
+            &::after {
+                opacity: 1;
+            }
+        }
+
+        &.is-active {
+            outline: 2px solid var(--color-accent);
+            outline-offset: 2px;
+        }
+    }
+
+    &__grid-item-num {
+        position: absolute;
+        top: 10px;
+        left: 12px;
+        z-index: 2;
+        font-family: var(--font-display);
+        font-style: italic;
+        font-size: clamp(14px, 1vw, 18px);
+        color: #ffffff;
+        text-shadow: 0 1px 8px rgba(0, 0, 0, 0.5);
+        pointer-events: none;
+    }
 }
 
-.lightbox {
-  position: fixed;
-  inset: 0;
-  z-index: 200;
-  background: rgba(26, 26, 26, 0.95);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--space-l);
-  backdrop-filter: blur(6px);
-  animation: lightboxIn 0.35s $ease-out-expo;
-
-  &__frame {
-    max-width: 90vw;
-    max-height: 90vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: var(--space-s);
-
-    img {
-      max-width: 100%;
-      max-height: 85vh;
-      object-fit: contain;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+// Travelling clip-path keyframes ----------------------------------------
+// Right arrow → image "opens" from the right edge towards the left.
+// The visible rectangle's LEFT side travels from 100% → 0%.
+@keyframes gallerySlideFromRight {
+    from {
+        clip-path: inset(0 0 0 100%);
     }
-
-    figcaption {
-      color: var(--color-secondary);
-      font-size: 14px;
-      opacity: 0.85;
-      text-align: center;
+    to {
+        clip-path: inset(0 0 0 0);
     }
-  }
-
-  &__counter {
-    color: var(--color-secondary);
-    font-size: 12px;
-    opacity: 0.7;
-    letter-spacing: 0.12em;
-  }
-
-  &__close, &__nav {
-    position: absolute;
-    background: none;
-    border: 1px solid rgba(232, 222, 197, 0.3);
-    color: var(--color-secondary);
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    cursor: pointer;
-    font-size: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.2s, transform 0.2s;
-
-    &:hover { background: rgba(232, 222, 197, 0.1); transform: scale(1.05); }
-  }
-
-  &__close { top: 20px; right: 20px; }
-  &__nav--prev { left: 20px; top: 50%; transform: translateY(-50%); }
-  &__nav--next { right: 20px; top: 50%; transform: translateY(-50%); }
 }
 
-@keyframes lightboxIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+// Left arrow → image "opens" from the left edge towards the right.
+// The visible rectangle's RIGHT side travels from 0% → 100%.
+@keyframes gallerySlideFromLeft {
+    from {
+        clip-path: inset(0 100% 0 0);
+    }
+    to {
+        clip-path: inset(0 0 0 0);
+    }
+}
+
+@keyframes galleryOverlayIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
 }

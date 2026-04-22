@@ -1,100 +1,311 @@
 @use '../abstracts/variables' as *;
 
 .activities {
-  padding-block: var(--section-padding-y);
-  background: var(--color-bg);
+    padding-block: var(--section-padding-y);
+    background: var(--color-bg);
+    position: relative;
+    overflow: hidden;
 
-  &__grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: var(--space-m);
+    &__inner {
+        display: flex;
+        flex-direction: column;
+        gap: clamp(48px, 7vh, 96px);
+        padding-inline: var(--edge-padding);
+    }
 
-    @media (max-width: $bp-desktop) { grid-template-columns: repeat(2, 1fr); }
-    @media (max-width: 640px)       { grid-template-columns: 1fr; }
-  }
+    // ── Section header (matches pricing / accommodations DA) ──────────
+    &__head {
+        display: flex;
+        flex-direction: column;
+        gap: clamp(18px, 2vh, 32px);
+        max-width: 960px;
+    }
+
+    &__eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: clamp(10px, 1vw, 18px);
+        font-family: var(--font-body);
+        font-size: clamp(11px, 0.85vw, 13px);
+        font-weight: 600;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: var(--color-accent);
+        margin: 0;
+    }
+
+    &__eyebrow-mark {
+        width: clamp(22px, 2vw, 32px);
+        height: clamp(22px, 2vw, 32px);
+        color: var(--color-accent);
+        flex-shrink: 0;
+    }
+
+    &__title {
+        font-family: var(--font-display);
+        font-style: normal;
+        font-weight: 400;
+        color: var(--color-primary);
+        font-size: clamp(44px, 7vw, 128px);
+        line-height: 0.98;
+        letter-spacing: -0.015em;
+        margin: 0;
+    }
+
+    &__intro {
+        color: var(--color-fg);
+        font-size: clamp(15px, 1.2vw, 18px);
+        line-height: 1.65;
+        max-width: 640px;
+        margin: 0;
+    }
+
+    // ── Grid: first card featured (taller/wider), then postcards ──────
+    &__grid {
+        display: grid;
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        gap: clamp(28px, 3vw, 56px) clamp(24px, 2.4vw, 44px);
+
+        .activity-card--featured {
+            grid-column: span 6;
+        }
+
+        .activity-card:not(.activity-card--featured) {
+            grid-column: span 2;
+        }
+
+        @media (max-width: $bp-desktop) {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+
+            .activity-card--featured {
+                grid-column: span 2;
+            }
+
+            .activity-card:not(.activity-card--featured) {
+                grid-column: span 1;
+            }
+        }
+
+        @media (max-width: 640px) {
+            grid-template-columns: 1fr;
+
+            .activity-card--featured,
+            .activity-card:not(.activity-card--featured) {
+                grid-column: span 1;
+            }
+        }
+    }
 }
 
+// ── Postcard-style editorial card ──────────────────────────────────
 .activity-card {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  background: var(--color-bg);
-  text-decoration: none;
-  color: inherit;
-  border-radius: 4px;
-  overflow: hidden;
-  transition: transform 0.4s $ease-out-expo;
-
-  &:hover {
-    transform: translateY(-4px);
-
-    .activity-card__media img { transform: scale(1.08); }
-    .activity-card__name { color: var(--color-accent); }
-  }
-
-  &__media {
     position: relative;
-    aspect-ratio: 4 / 3;
-    overflow: hidden;
-    background: var(--color-secondary);
-    background-size: cover;
-    background-position: center;
-
-    img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: transform 0.8s $ease-out-expo;
-    }
-  }
-
-  &__category {
-    position: absolute;
-    top: var(--space-s);
-    left: var(--space-s);
-    padding: 6px 12px;
-    background: var(--color-primary);
-    color: var(--color-secondary);
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    border-radius: 2px;
-  }
-
-  &__body {
-    padding: var(--space-m) var(--space-s) var(--space-l);
     display: flex;
     flex-direction: column;
-    gap: var(--space-xs);
-    flex: 1;
-  }
-
-  &__name {
-    font-size: 19px;
-    line-height: 1.25;
-    font-family: var(--font-display);
+    gap: clamp(18px, 2vh, 28px);
+    text-decoration: none;
     color: var(--color-primary);
-    transition: color 0.25s;
-  }
+    background: transparent;
 
-  &__desc {
-    font-size: 14px;
-    color: var(--color-muted);
-    line-height: 1.5;
-    flex: 1;
-  }
+    &:hover {
+        .activity-card__media img {
+            transform: scale(1.06);
+        }
+        .activity-card__name {
+            color: var(--color-accent);
+        }
+        .activity-card__shell {
+            opacity: 0.95;
+            transform: rotate(40deg);
+        }
+        .activity-card__more {
+            gap: 12px;
+            color: var(--color-primary);
+        }
+    }
 
-  &__meta {
-    display: flex;
-    gap: var(--space-m);
-    padding-top: var(--space-xs);
-    border-top: 1px solid var(--color-border);
-    font-size: 12px;
-    color: var(--color-muted);
-    letter-spacing: 0.04em;
-    margin-top: auto;
+    &__frame {
+        position: relative;
+        overflow: hidden;
+        border: 1px solid var(--color-border);
+        background: var(--color-secondary);
+    }
 
-    span + span { padding-left: var(--space-m); border-left: 1px solid var(--color-border); }
-  }
+    &__number {
+        position: absolute;
+        top: clamp(10px, 1.2vw, 16px);
+        left: clamp(12px, 1.4vw, 18px);
+        z-index: 2;
+        font-family: var(--font-body);
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.24em;
+        color: var(--color-secondary);
+        mix-blend-mode: normal;
+        padding: 4px 10px;
+        background: rgba(31, 58, 46, 0.6);
+        backdrop-filter: blur(6px);
+    }
+
+    &__media {
+        position: relative;
+        width: 100%;
+        overflow: hidden;
+        background-size: cover;
+        background-position: center;
+        aspect-ratio: 4 / 3;
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.9s $ease-out-expo;
+            display: block;
+        }
+    }
+
+    &__shell {
+        position: absolute;
+        right: clamp(10px, 1.2vw, 16px);
+        bottom: clamp(10px, 1.2vw, 16px);
+        width: clamp(32px, 3vw, 48px);
+        height: clamp(32px, 3vw, 48px);
+        color: var(--color-secondary);
+        opacity: 0.82;
+        transition: transform 0.6s $ease-out-expo, opacity 0.4s;
+        pointer-events: none;
+        z-index: 2;
+    }
+
+    // Featured card — larger hero photo, typography two-column
+    &--featured {
+        display: grid;
+        grid-template-columns: 1.3fr 1fr;
+        gap: clamp(28px, 3vw, 56px);
+        align-items: center;
+
+        @media (max-width: $bp-desktop) {
+            grid-template-columns: 1fr;
+            gap: clamp(20px, 3vh, 40px);
+        }
+
+        .activity-card__frame {
+            height: 100%;
+        }
+
+        .activity-card__media {
+            aspect-ratio: 5 / 4;
+            height: 100%;
+
+            @media (max-width: $bp-desktop) {
+                aspect-ratio: 16 / 10;
+                height: auto;
+            }
+        }
+
+        .activity-card__shell {
+            width: clamp(44px, 4vw, 72px);
+            height: clamp(44px, 4vw, 72px);
+        }
+
+        .activity-card__body {
+            padding-block: clamp(8px, 2vh, 32px);
+        }
+
+        .activity-card__name {
+            font-size: clamp(32px, 3.8vw, 56px);
+        }
+
+        .activity-card__desc {
+            font-size: clamp(15px, 1.1vw, 17px);
+        }
+    }
+
+    &__body {
+        display: flex;
+        flex-direction: column;
+        gap: clamp(10px, 1.4vh, 18px);
+    }
+
+    &__category {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        font-family: var(--font-body);
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: var(--color-accent);
+        margin: 0;
+    }
+
+    &__category-line {
+        width: 24px;
+        height: 1px;
+        background: currentColor;
+        opacity: 0.6;
+    }
+
+    &__name {
+        font-family: var(--font-display);
+        font-style: italic;
+        font-weight: 400;
+        font-size: clamp(22px, 1.9vw, 30px);
+        line-height: 1.12;
+        color: var(--color-primary);
+        margin: 0;
+        transition: color 0.3s $ease-out-expo;
+    }
+
+    &__desc {
+        font-family: var(--font-body);
+        font-size: clamp(13px, 1vw, 15px);
+        line-height: 1.6;
+        color: rgba(26, 26, 26, 0.72);
+        margin: 0;
+    }
+
+    &__foot {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: clamp(12px, 1.5vw, 22px);
+        margin-top: auto;
+        padding-top: clamp(12px, 1.4vh, 18px);
+        border-top: 1px solid var(--color-border);
+    }
+
+    &__meta {
+        display: flex;
+        gap: clamp(12px, 1.4vw, 22px);
+        font-family: var(--font-body);
+        font-size: 12px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: rgba(26, 26, 26, 0.6);
+
+        span + span {
+            padding-left: clamp(12px, 1.4vw, 22px);
+            border-left: 1px solid var(--color-border);
+        }
+    }
+
+    &__more {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-family: var(--font-body);
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--color-accent);
+        transition: gap 0.3s $ease-out-expo, color 0.3s;
+
+        svg {
+            width: 14px;
+            height: 14px;
+        }
+    }
 }

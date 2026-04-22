@@ -1,18 +1,37 @@
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import type { TestimonialsSection as Data, Testimonial } from '../../types/content';
+import type {
+  TestimonialsSection as Data,
+  Testimonial,
+} from '../../types/content';
 import { extractBaseLang } from '../../i18n/routes';
 import { pickLocale } from '../../i18n/localized';
-import SectionHeader from './SectionHeader';
+import { buildImageUrl } from '../../services/imageUrl';
+import { useSiteSettings } from '../../providers/ContentProvider';
+import { fetchGoogleReviews } from '../../services/googleReviewsService';
+import Coquillage from '../Coquillage';
 
 if (typeof window !== 'undefined') gsap.registerPlugin(ScrollTrigger);
 
-const Stars = ({ rating }: { rating: number }) => (
-  <span className="testimonial__stars" aria-label={`${rating} sur 5`}>
+const AUTO_ADVANCE_MS = 7500;
+
+const SOURCE_LABEL: Record<string, string> = {
+  direct: '',
+  google: 'Google',
+  airbnb: 'Airbnb',
+  booking: 'Booking',
+  other: '',
+};
+
+const Stars = ({ rating, small = false }: { rating: number; small?: boolean }) => (
+  <span
+    className={`testimonial__stars ${small ? 'testimonial__stars--sm' : ''}`}
+    aria-label={`${rating} / 5`}
+  >
     {[1, 2, 3, 4, 5].map((n) => (
-      <svg key={n} viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+      <svg key={n} viewBox="0 0 16 16" aria-hidden="true">
         <path
           fill={n <= rating ? 'currentColor' : 'none'}
           stroke="currentColor"
@@ -24,154 +43,239 @@ const Stars = ({ rating }: { rating: number }) => (
   </span>
 );
 
-const SOURCE_LABEL = {
-  direct: 'Direct',
-  google: 'Google',
-  airbnb: 'Airbnb',
-  booking: 'Booking',
-  other: '',
-} as const;
+const getInitials = (name: string) =>
+  name
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? '')
+    .join('');
 
-const TestimonialCard = ({
-  item,
-  lang,
-}: {
-  item: Testimonial;
-  lang: 'fr' | 'en';
-}) => {
-  const body = pickLocale(item.body, lang);
-  const origin = pickLocale(item.origin, lang);
-  const source = item.source ? SOURCE_LABEL[item.source] : '';
+const Avatar = ({ item }: { item: Testimonial }) => {
+  const sanityUrl = item.avatar
+    ? buildImageUrl(item.avatar, {
+        width: 160,
+        height: 160,
+        fit: 'crop',
+        format: 'webp',
+      })
+    : undefined;
+  const url = sanityUrl || item.avatarUrl || undefined;
+  if (url) {
+    return (
+      <img
+        className="testimonial__avatar"
+        src={url}
+        alt=""
+        loading="lazy"
+        referrerPolicy="no-referrer"
+      />
+    );
+  }
   return (
-    <article className="testimonial">
-      <Stars rating={item.rating ?? 5} />
-      <blockquote className="testimonial__body">
-        <p>“{body}”</p>
-      </blockquote>
-      <footer className="testimonial__meta">
-        <strong className="testimonial__author">{item.authorName}</strong>
-        {origin && <span className="testimonial__origin">{origin}</span>}
-        {source && <span className="testimonial__source">· {source}</span>}
-      </footer>
-    </article>
+    <span
+      className="testimonial__avatar testimonial__avatar--placeholder"
+      aria-hidden="true"
+    >
+      {getInitials(item.authorName || '•')}
+    </span>
   );
+};
+
+const formatDate = (
+  iso: string | null | undefined,
+  lang: 'fr' | 'en',
+): string => {
+  if (!iso) return '';
+  try {
+    const d = new Date(iso);
+    const fmt = new Intl.DateTimeFormat(
+      lang === 'fr' ? 'fr-FR' : 'en-US',
+      { month: 'long', year: 'numeric' },
+    );
+    return fmt.format(d);
+  } catch {
+    return '';
+  }
 };
 
 const TestimonialsSection = ({ data }: { data: Data }) => {
   const { i18n } = useTranslation();
   const lang = extractBaseLang(i18n.language);
+  const site = useSiteSettings();
   const rootRef = useRef<HTMLElement | null>(null);
-  const trackRef = useRef<HTMLDivElement | null>(null);
-  const [active, setActive] = useState(0);
-  const mode = data.displayMode ?? 'carousel';
-  const count = data.testimonials.length;
 
+  // Base testimonials from Sanity, optionally merged with Google reviews
+  const [googleItems, setGoogleItems] = useState<Testimonial[]>([]);
+  const placeId = site?.googleReviews?.placeId ?? null;
+  const merge = site?.googleReviews?.merge !== false;
+
+  useEffect(() => {
+    if (!placeId) return;
+    let cancelled = false;
+    fetchGoogleReviews(placeId, lang).then((reviews) => {
+      if (!cancelled) setGoogleItems(reviews);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [placeId, lang]);
+
+  const items = useMemo(() => {
+    const base = data.testimonials.filter((t) => t.published !== false);
+    if (placeId && merge && googleItems.length) {
+      return [...base, ...googleItems];
+    }
+    if (placeId && !merge && googleItems.length) {
+      return googleItems;
+    }
+    return base;
+  }, [data.testimonials, placeId, merge, googleItems]);
+
+  const total = items.length;
+  const [active, setActive] = useState(0);
+  const [paused, setPaused] = useState(false);
+
+  useEffect(() => {
+    if (active >= total) setActive(0);
+  }, [total, active]);
+
+  useEffect(() => {
+    if (paused || total < 2) return;
+    const id = window.setInterval(() => {
+      setActive((i) => (i + 1) % total);
+    }, AUTO_ADVANCE_MS);
+    return () => window.clearInterval(id);
+  }, [paused, total]);
+
+  // Section header reveal
   useLayoutEffect(() => {
     const el = rootRef.current;
     if (!el) return;
     const ctx = gsap.context(() => {
-      gsap.from(el.querySelectorAll('[data-reveal]'), {
+      gsap.from(el.querySelectorAll('.testimonials__head [data-reveal]'), {
         opacity: 0,
-        y: 36,
+        y: 32,
         duration: 1.1,
         ease: 'expo.out',
-        stagger: 0.1,
+        stagger: 0.08,
         scrollTrigger: { trigger: el, start: 'top 78%', once: true },
+      });
+      gsap.from(el.querySelectorAll('.testimonial'), {
+        opacity: 0,
+        y: 20,
+        duration: 1,
+        ease: 'expo.out',
+        stagger: 0.08,
+        scrollTrigger: { trigger: el, start: 'top 70%', once: true },
       });
     }, el);
     return () => ctx.revert();
   }, []);
 
-  // Auto-advance carousel
-  useEffect(() => {
-    if (mode !== 'carousel' || count <= 1) return;
-    const id = window.setInterval(() => {
-      setActive((a) => (a + 1) % count);
-    }, 6500);
-    return () => window.clearInterval(id);
-  }, [mode, count]);
+  const eyebrow = pickLocale(data.eyebrow ?? undefined, lang);
+  const title = pickLocale(data.title, lang);
+  const intro = pickLocale(data.intro ?? undefined, lang);
 
-  const goTo = useCallback((i: number) => {
-    setActive(((i % count) + count) % count);
-  }, [count]);
-
-  if (mode === 'grid' || mode === 'list') {
-    return (
-      <section id={data.sectionId || 'avis'} className={`testimonials testimonials--${mode}`} ref={rootRef}>
-        <div className="container">
-          <SectionHeader
-            eyebrow={data.eyebrow ?? undefined}
-            title={data.title}
-            intro={data.intro ?? undefined}
-            align="center"
-          />
-          <div className="testimonials__grid" data-reveal>
-            {data.testimonials.map((t) => (
-              <div key={t._id} data-reveal>
-                <TestimonialCard item={t} lang={lang} />
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-    );
-  }
+  if (!total) return null;
 
   return (
-    <section id={data.sectionId || 'avis'} className="testimonials testimonials--carousel" ref={rootRef}>
-      <div className="container">
-        <SectionHeader
-          eyebrow={data.eyebrow ?? undefined}
-          title={data.title}
-          intro={data.intro ?? undefined}
-          align="center"
-        />
-        <div className="testimonials__carousel" data-reveal>
-          <div
-            className="testimonials__track"
-            ref={trackRef}
-            style={{ transform: `translateX(-${active * 100}%)` }}
-          >
-            {data.testimonials.map((t) => (
-              <div key={t._id} className="testimonials__slide">
-                <TestimonialCard item={t} lang={lang} />
-              </div>
-            ))}
-          </div>
-
-          {count > 1 && (
-            <div className="testimonials__controls">
-              <button
-                type="button"
-                className="testimonials__nav"
-                aria-label="Précédent"
-                onClick={() => goTo(active - 1)}
-              >
-                ‹
-              </button>
-              <div className="testimonials__dots">
-                {data.testimonials.map((_, i) => (
-                  <button
-                    key={i}
-                    type="button"
-                    className={`testimonials__dot ${i === active ? 'is-active' : ''}`}
-                    aria-label={`Aller à l'avis ${i + 1}`}
-                    aria-current={i === active}
-                    onClick={() => goTo(i)}
-                  />
-                ))}
-              </div>
-              <button
-                type="button"
-                className="testimonials__nav"
-                aria-label="Suivant"
-                onClick={() => goTo(active + 1)}
-              >
-                ›
-              </button>
-            </div>
+    <section
+      id={data.sectionId || 'avis'}
+      className="testimonials"
+      ref={rootRef}
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+      onFocus={() => setPaused(true)}
+      onBlur={() => setPaused(false)}
+    >
+      <div className="testimonials__inner">
+        <header className="testimonials__head">
+          {eyebrow && (
+            <p className="testimonials__eyebrow" data-reveal>
+              <Coquillage
+                className="testimonials__eyebrow-mark"
+                variant="rays"
+                rotate={90}
+              />
+              <span>{eyebrow}</span>
+            </p>
           )}
-        </div>
+          <h2 className="testimonials__title" data-reveal>
+            {title}
+          </h2>
+          {intro && (
+            <p className="testimonials__intro" data-reveal>
+              {intro}
+            </p>
+          )}
+        </header>
+
+        <ol className="testimonials__row" role="list">
+          {items.map((item, i) => {
+            const isActive = i === active;
+            const body = pickLocale(item.body, lang);
+            const origin = pickLocale(item.origin, lang);
+            const source = item.source ? SOURCE_LABEL[item.source] : '';
+            const date = formatDate(item.date, lang);
+
+            return (
+              <li
+                key={item._id}
+                className={`testimonial ${isActive ? 'testimonial--active' : ''}`}
+              >
+                <button
+                  type="button"
+                  className="testimonial__btn"
+                  onClick={() => setActive(i)}
+                  aria-expanded={isActive}
+                  aria-label={
+                    isActive
+                      ? `Avis de ${item.authorName}`
+                      : `Ouvrir l'avis de ${item.authorName}`
+                  }
+                >
+                  <header className="testimonial__head">
+                    <Avatar item={item} />
+                    <div className="testimonial__head-text">
+                      <span className="testimonial__name">
+                        {item.authorName}
+                      </span>
+                      <Stars rating={item.rating ?? 5} small={!isActive} />
+                    </div>
+                  </header>
+
+                  {/* Body — always visible; line-clamped when collapsed */}
+                  {body && (
+                    <p className="testimonial__body">{body}</p>
+                  )}
+
+                  <footer className="testimonial__sub">
+                    {origin && <span>{origin}</span>}
+                    {origin && (date || source) && (
+                      <span className="testimonial__sub-dot">·</span>
+                    )}
+                    {date && <span>{date}</span>}
+                    {date && source && (
+                      <span className="testimonial__sub-dot">·</span>
+                    )}
+                    {source && (
+                      <span className="testimonial__source">{source}</span>
+                    )}
+                  </footer>
+                </button>
+
+                {isActive && total > 1 && !paused && (
+                  <span
+                    key={`${item._id}-progress-${active}`}
+                    className="testimonial__progress"
+                    aria-hidden="true"
+                    style={{ animationDuration: `${AUTO_ADVANCE_MS}ms` }}
+                  />
+                )}
+              </li>
+            );
+          })}
+        </ol>
       </div>
     </section>
   );

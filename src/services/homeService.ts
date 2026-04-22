@@ -74,6 +74,7 @@ const SECTION_PROJECTION = /* groq */ `
   },
   _type == "pricingSection" => {
     intro, notes,
+    "sideImage": sideImage{ ${IMAGE_WITH_ALT} },
     "periods": select(
       count(periods) > 0 =>
         periods[]->{ ${PRICING_PROJECTION} },
@@ -101,7 +102,7 @@ const SECTION_PROJECTION = /* groq */ `
     "image": image{ ${IMAGE_WITH_ALT} }
   },
   _type == "contactSection" => {
-    intro, showEmail, showPhone, airbnbCta, additionalNotes
+    intro, map, showEmail, showPhone, airbnbCta, additionalNotes
   }
 `;
 

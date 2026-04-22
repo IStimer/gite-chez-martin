@@ -1,143 +1,371 @@
-@use '../abstracts/variables' as *;
+@use "../abstracts/variables" as *;
 
 .pricing {
-  padding-block: var(--section-padding-y);
-  background: var(--color-primary);
-  color: var(--color-secondary);
+    // Slightly tighter than the default section rhythm
+    padding-block: clamp(56px, 8vw, 112px);
+    background: var(--color-primary);
+    color: var(--color-secondary);
 
-  .section-header__title { color: var(--color-secondary); }
-  .section-header__intro { color: var(--color-secondary); opacity: 0.8; }
-
-  &__grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: var(--space-l);
-    max-width: 960px;
-    margin-inline: auto;
-
-    @media (max-width: 640px) { grid-template-columns: 1fr; }
-  }
-
-  &__footnotes {
-    margin-top: var(--space-xl);
-    text-align: center;
-    max-width: 620px;
-    margin-inline: auto;
-    opacity: 0.8;
-    font-size: 14px;
-
-    p { line-height: 1.6; }
-  }
-}
-
-.pricing-card {
-  background: var(--color-secondary);
-  color: var(--color-primary);
-  padding: var(--space-xl) var(--space-l);
-  border-radius: 4px;
-  position: relative;
-  overflow: hidden;
-  transition: transform 0.4s $ease-out-expo;
-
-  &:hover {
-    transform: translateY(-4px);
-  }
-
-  // Decorative corner accent
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0; right: 0;
-    width: 60px;
-    height: 60px;
-    background: linear-gradient(135deg, transparent 50%, var(--color-accent) 50%);
-  }
-
-  &__head {
-    margin-bottom: var(--space-l);
-    padding-bottom: var(--space-m);
-    border-bottom: 1px solid var(--color-border);
-  }
-
-  &__name {
-    font-size: clamp(22px, 2.2vw, 28px);
-    line-height: 1.1;
-    margin-bottom: var(--space-2xs);
-    color: var(--color-primary);
-  }
-
-  &__range {
-    font-size: 12px;
-    color: var(--color-muted);
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-  }
-
-  &__price {
-    display: flex;
-    align-items: baseline;
-    gap: var(--space-xs);
-    margin-bottom: var(--space-m);
-  }
-
-  &__amount {
-    font-family: var(--font-display);
-    font-size: clamp(48px, 6vw, 72px);
-    line-height: 1;
-    color: var(--color-primary);
-    font-weight: 500;
-  }
-
-  &__symbol {
-    font-size: 0.5em;
-    margin-left: 4px;
-    vertical-align: top;
-    color: var(--color-accent);
-  }
-
-  &__unit {
-    font-size: 13px;
-    color: var(--color-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-  }
-
-  &__min {
-    font-size: 13px;
-    color: var(--color-muted);
-    margin-bottom: var(--space-m);
-    font-style: italic;
-  }
-
-  &__includes {
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2xs);
-    margin-bottom: var(--space-m);
-
-    li {
-      position: relative;
-      padding-left: 22px;
-      font-size: 14px;
-      color: var(--color-fg);
-      line-height: 1.5;
-
-      &::before {
-        content: '✓';
-        position: absolute;
-        left: 0; top: 0;
-        color: var(--color-accent);
-        font-weight: 700;
-      }
+    &__inner {
+        display: flex;
+        flex-direction: column;
+        gap: clamp(32px, 5vh, 64px);
+        padding-inline: var(--edge-padding);
     }
-  }
 
-  &__notes {
-    font-size: 12px;
-    color: var(--color-muted);
-    padding-top: var(--space-m);
-    border-top: 1px solid var(--color-border);
-    line-height: 1.5;
-  }
+    // ── Section header ────────────────────────────────────────────────
+    &__head {
+        display: flex;
+        flex-direction: column;
+        gap: clamp(18px, 2vh, 32px);
+        max-width: 960px;
+        width: 100%;
+    }
+
+    &__eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: clamp(10px, 1vw, 18px);
+        font-family: var(--font-body);
+        font-size: clamp(11px, 0.85vw, 13px);
+        font-weight: 600;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: var(--color-accent);
+        margin: 0;
+    }
+
+    &__eyebrow-mark {
+        width: clamp(22px, 2vw, 32px);
+        height: clamp(22px, 2vw, 32px);
+        color: var(--color-accent);
+        flex-shrink: 0;
+    }
+
+    &__title {
+        font-family: var(--font-display);
+        font-weight: 400;
+        color: var(--color-secondary);
+        font-size: clamp(44px, 7vw, 128px);
+        line-height: 0.98;
+        letter-spacing: -0.015em;
+        margin: 0;
+    }
+
+    &__intro {
+        color: rgba(232, 222, 197, 0.82);
+        font-size: clamp(15px, 1.2vw, 18px);
+        line-height: 1.65;
+        max-width: 640px;
+        margin: 0;
+    }
+
+    // ── Panneau (sérigraphie / French tavern sign) ───────────────────
+    // Full-width now, with a landscape photo on the left and the
+    // typographic price board on the right. The photo + panneau share
+    // the same outer frame so they read as one object.
+    &__panneau {
+        width: 100%;
+        max-width: 100%;
+        background: var(--color-secondary);
+        color: var(--color-primary);
+        padding: clamp(8px, 0.9vw, 14px);
+        border: 2px solid var(--color-primary);
+        box-shadow:
+            0 30px 60px rgba(0, 0, 0, 0.35),
+            0 8px 18px rgba(0, 0, 0, 0.22);
+        position: relative;
+        isolation: isolate;
+    }
+
+    // Inner frame wraps both the image and the text so the double filet
+    // (outer 2px + inner 1px) runs around the entire plaque.
+    &__frame {
+        border: 1px solid var(--color-primary);
+        overflow: hidden;
+    }
+
+    &__grid {
+        display: grid;
+        // Image slightly wider than content now (≈55/45).
+        grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+        align-items: stretch;
+        // Much tighter height — avoids the tall portrait look.
+        min-height: clamp(280px, 38vh, 420px);
+
+        @media (max-width: $bp-tablet) {
+            grid-template-columns: 1fr;
+            min-height: 0;
+        }
+    }
+
+    // ── Side image (landscape photo on the left) ─────────────────────
+    &__side-image {
+        position: relative;
+        margin: 0;
+        overflow: hidden;
+        background: var(--color-primary) center / cover no-repeat;
+        // Vertical separator matches the inner filet for continuity
+        border-right: 1px solid var(--color-primary);
+
+        img {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        @media (max-width: $bp-tablet) {
+            aspect-ratio: 16 / 10;
+            border-right: none;
+            border-bottom: 1px solid var(--color-primary);
+        }
+    }
+
+    &__side-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+            180deg,
+            rgba(31, 58, 46, 0.12) 0%,
+            rgba(31, 58, 46, 0.35) 65%,
+            rgba(31, 58, 46, 0.5) 100%
+        );
+        z-index: 1;
+        pointer-events: none;
+    }
+
+    // Huge italic year overlaid on the photo — decorative signature
+    &__side-year {
+        position: absolute;
+        bottom: clamp(16px, 2.5vw, 40px);
+        left: clamp(16px, 2.5vw, 40px);
+        z-index: 2;
+        font-family: var(--font-display);
+        font-style: italic;
+        font-weight: 400;
+        font-size: clamp(72px, 8.5vw, 160px);
+        line-height: 0.9;
+        color: #ffffff;
+        letter-spacing: -0.02em;
+        pointer-events: none;
+        text-shadow: 0 2px 24px rgba(0, 0, 0, 0.4);
+    }
+
+    &__side-shell {
+        position: absolute;
+        top: clamp(16px, 2.5vw, 40px);
+        right: clamp(16px, 2.5vw, 40px);
+        z-index: 2;
+        width: clamp(32px, 3.2vw, 48px);
+        height: clamp(32px, 3.2vw, 48px);
+        color: var(--color-accent);
+        pointer-events: none;
+    }
+
+    // Content column — typography lives here; no border (the outer frame
+    // handles the inner 1px filet on the whole plaque).
+    &__content {
+        padding:
+            clamp(20px, 2.6vw, 36px) clamp(20px, 2.8vw, 40px)
+            clamp(24px, 3vw, 44px);
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    &__overline {
+        font-family: var(--font-body);
+        font-size: clamp(10px, 0.8vw, 12px);
+        font-weight: 600;
+        letter-spacing: 0.34em;
+        text-transform: uppercase;
+        color: var(--color-primary);
+        opacity: 0.7;
+        margin: 0 0 clamp(10px, 1.2vh, 18px);
+    }
+
+    // ── Ornament (coquillage — filet — ✦ — filet — coquillage) ───────
+    &__ornament {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: clamp(12px, 1.4vw, 22px);
+        margin-block: clamp(10px, 1.4vh, 20px);
+        color: var(--color-accent);
+    }
+
+    &__ornament-shell {
+        width: clamp(18px, 1.8vw, 26px);
+        height: clamp(18px, 1.8vw, 26px);
+        color: var(--color-primary);
+        flex-shrink: 0;
+    }
+
+    &__ornament-line {
+        display: block;
+        height: 1px;
+        width: clamp(48px, 8vw, 120px);
+        background: var(--color-primary);
+        opacity: 0.5;
+    }
+
+    &__ornament-diamond {
+        font-size: clamp(12px, 1vw, 16px);
+        color: var(--color-accent);
+        line-height: 1;
+    }
+
+    // ── Periods ──────────────────────────────────────────────────────
+    &__periods {
+        display: flex;
+        flex-direction: column;
+    }
+
+    &__period {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: clamp(2px, 0.3vw, 4px);
+        padding: clamp(8px, 1.2vh, 16px) 0;
+
+        // Only non-first periods get extra top padding + a separator —
+        // the first one already gets breathing room from the ornament above.
+        // Extra = the ornament's vertical margin, so both periods end up
+        // with the same visual top breathing room.
+        & + & {
+            border-top: 1px solid rgba(31, 58, 46, 0.22);
+            padding-top: calc(
+                clamp(8px, 1.2vh, 16px) + clamp(10px, 1.4vh, 20px)
+            );
+        }
+    }
+
+    &__season {
+        font-family: var(--font-display);
+        font-weight: 400;
+        font-style: normal;
+        font-size: clamp(18px, 1.8vw, 26px);
+        line-height: 1.05;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--color-primary);
+        margin: 0;
+    }
+
+    &__dates {
+        font-family: var(--font-display);
+        font-style: italic;
+        font-weight: 400;
+        font-size: clamp(13px, 0.95vw, 15px);
+        color: var(--color-primary);
+        opacity: 0.7;
+        letter-spacing: 0;
+        margin: 0 0 clamp(2px, 0.4vw, 6px);
+    }
+
+    &__price {
+        font-family: var(--font-display);
+        font-style: italic;
+        font-weight: 400;
+        font-size: clamp(40px, 4.6vw, 72px);
+        line-height: 1;
+        color: var(--color-primary);
+        margin: clamp(0px, 0.2vw, 4px) 0 0;
+        display: inline-flex;
+        align-items: baseline;
+        justify-content: center;
+        gap: 0;
+    }
+
+    &__amount {
+        line-height: 1;
+    }
+
+    &__currency {
+        font-size: 0.45em;
+        color: var(--color-primary);
+        margin-left: 4px;
+    }
+
+    &__unit {
+        font-size: 0.22em;
+        font-style: normal;
+        font-family: var(--font-body);
+        font-weight: 500;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: rgba(31, 58, 46, 0.6);
+        margin-left: clamp(10px, 1.2vw, 18px);
+        white-space: nowrap;
+    }
+
+    &__min {
+        font-family: var(--font-display);
+        font-style: italic;
+        font-size: clamp(12px, 0.9vw, 14px);
+        color: rgba(31, 58, 46, 0.65);
+        margin: clamp(2px, 0.3vw, 6px) 0 0;
+    }
+
+    &__includes {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+        list-style: none;
+        margin: clamp(4px, 0.7vw, 10px) 0 0;
+        padding: 0;
+        color: var(--color-primary);
+        font-size: clamp(12px, 0.9vw, 14px);
+        letter-spacing: 0.015em;
+        max-width: 92%;
+
+        li {
+            display: flex;
+            align-items: center;
+
+            &:not(:first-child)::before {
+                content: "";
+                width: 4px;
+                height: 4px;
+                border-radius: 50%;
+                background: var(--color-accent);
+                margin: 0 clamp(8px, 1vw, 14px);
+            }
+        }
+    }
+
+    // ── Footnote ──────────────────────────────────────────────────────
+    &__footnote {
+        margin-top: clamp(6px, 1vw, 14px);
+        font-family: var(--font-display);
+        font-style: italic;
+        font-size: clamp(11px, 0.85vw, 13px);
+        line-height: 1.45;
+        color: rgba(31, 58, 46, 0.72);
+        text-align: center;
+
+        p {
+            margin: 0;
+        }
+
+        p + p {
+            margin-top: 0.6em;
+        }
+    }
+
+    // Responsive: lighten the panneau paddings on small screens
+    @media (max-width: $bp-mobile) {
+        &__content {
+            padding: clamp(24px, 5vw, 40px) clamp(20px, 4vw, 32px);
+        }
+
+        &__ornament-line {
+            width: clamp(32px, 12vw, 80px);
+        }
+    }
 }

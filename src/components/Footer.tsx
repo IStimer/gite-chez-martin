@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useSiteSettings } from '../providers/ContentProvider';
 import { extractBaseLang } from '../i18n/routes';
@@ -46,9 +47,13 @@ const Footer = () => {
             <div className="footer__col">
               <h4 className="footer__title">Informations</h4>
               {footerPages.map((p) => (
-                <a key={p._id} href={`/${lang}/${p.slug.current}`} className="footer__link">
+                <Link
+                  key={p._id}
+                  to={`/${lang}/${p.slug.current}`}
+                  className="footer__link"
+                >
                   {pickLocale(p.title, lang)}
-                </a>
+                </Link>
               ))}
             </div>
           )}

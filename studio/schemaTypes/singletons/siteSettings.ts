@@ -98,6 +98,32 @@ export const siteSettings = defineType({
         }),
       ],
     }),
+    defineField({
+      name: 'googleReviews',
+      title: 'Avis Google',
+      description:
+        'Pour récupérer les avis depuis Google. Demande aussi une clé API Maps (côté env : VITE_GOOGLE_PLACES_API_KEY).',
+      type: 'object',
+      group: 'contact',
+      options: { collapsible: true, collapsed: true },
+      fields: [
+        defineField({
+          name: 'placeId',
+          title: 'Google Place ID',
+          description:
+            'ID du lieu sur Google Maps. À récupérer via Google Place ID Finder.',
+          type: 'string',
+        }),
+        defineField({
+          name: 'merge',
+          title: 'Fusionner avec les avis Sanity',
+          description:
+            'Si activé, les avis Google sont affichés après ceux gérés dans Sanity. Sinon seuls les avis Sanity sont affichés.',
+          type: 'boolean',
+          initialValue: true,
+        }),
+      ],
+    }),
     // THEME
     defineField({
       name: 'theme',

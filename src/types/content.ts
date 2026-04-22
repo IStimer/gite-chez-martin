@@ -124,9 +124,13 @@ export interface Testimonial {
   body: LocaleText;
   date?: string | null;
   avatar?: SanityImage | null;
+  /** Fallback direct URL for avatar (used when fetched from Google). */
+  avatarUrl?: string | null;
   source?: 'direct' | 'google' | 'airbnb' | 'booking' | 'other';
   published?: boolean;
   order?: number;
+  /** External link (used by Google reviews → opens the review on Google Maps). */
+  externalUrl?: string | null;
 }
 
 export type ActivityCategory =
@@ -174,6 +178,7 @@ export interface SecondaryPage {
   heroImage?: ImageWithAlt | null;
   body: LocalePortableText;
   showInFooter?: boolean;
+  seo?: SeoSettings | null;
 }
 
 // ──────────────────────────────────────────────────────────────
@@ -233,6 +238,7 @@ export interface PricingSection extends SectionBase {
   intro?: LocaleText | null;
   periods: PricingPeriod[];
   notes?: LocalePortableText | null;
+  sideImage?: ImageWithAlt | null;
 }
 
 export interface TestimonialsSection extends SectionBase {
@@ -259,6 +265,7 @@ export interface LocationSection extends SectionBase {
 export interface ContactSection extends SectionBase {
   _type: 'contactSection';
   intro?: LocaleText | null;
+  map?: MapLocation | null;
   showEmail?: boolean;
   showPhone?: boolean;
   airbnbCta?: Cta | null;
@@ -331,6 +338,10 @@ export interface SiteSettings {
   defaultLocale: 'fr' | 'en';
   enabledLocales: string[];
   footerPages?: SecondaryPage[];
+  googleReviews?: {
+    placeId?: string | null;
+    merge?: boolean;
+  } | null;
 }
 
 export interface HomePage {

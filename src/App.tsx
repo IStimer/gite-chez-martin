@@ -7,6 +7,7 @@ import { ContentProvider } from './providers/ContentProvider';
 import LanguageRedirect from './components/LanguageRedirect';
 import LanguageLayout from './components/LanguageLayout';
 import Home from './pages/Home';
+import SecondaryPage from './pages/SecondaryPage';
 
 function AppRoutes() {
   return (
@@ -14,6 +15,7 @@ function AppRoutes() {
       <Route path="/" element={<LanguageRedirect />} />
       <Route path="/:lang" element={<LanguageLayout />}>
         <Route index element={<Home />} />
+        <Route path=":slug" element={<SecondaryPage />} />
       </Route>
     </Routes>
   );

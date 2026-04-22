@@ -51,6 +51,12 @@ export const pricingSection = defineType({
       description: 'Mentions sur la taxe de séjour, caution, arrhes, etc.',
       type: 'localePortableText',
     }),
+    defineField({
+      name: 'sideImage',
+      title: 'Image décorative (côté du panneau)',
+      description: 'Paysage affiché à gauche du panneau tarifaire.',
+      type: 'imageWithAlt',
+    }),
   ],
   preview: {
     select: { title: 'title.fr', enabled: 'enabled' },

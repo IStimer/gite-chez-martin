@@ -34,6 +34,12 @@ export const contactSection = defineType({
       type: 'localeText',
     }),
     defineField({
+      name: 'map',
+      title: 'Carte & adresse',
+      description: 'Adresse, coordonnées GPS, et instructions d’accès affichées à côté des coordonnées.',
+      type: 'mapLocation',
+    }),
+    defineField({
       name: 'showEmail',
       title: 'Afficher l’email',
       description: 'Email pris dans Paramètres du site.',

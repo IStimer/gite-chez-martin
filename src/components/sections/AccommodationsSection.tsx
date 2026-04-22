@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef } from 'react';
+import { Fragment, useLayoutEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -10,7 +10,7 @@ import type {
 import { extractBaseLang } from '../../i18n/routes';
 import { pickLocale } from '../../i18n/localized';
 import { buildImageUrl, getLqip, getAltText } from '../../services/imageUrl';
-import SectionHeader from './SectionHeader';
+import Coquillage from '../Coquillage';
 
 if (typeof window !== 'undefined') gsap.registerPlugin(ScrollTrigger);
 
@@ -18,8 +18,8 @@ const EQUIPMENT_LABELS: Record<EquipmentId, { fr: string; en: string }> = {
   wifi: { fr: 'Wifi', en: 'Wifi' },
   kitchen: { fr: 'Cuisine équipée', en: 'Full kitchen' },
   kitchenette: { fr: 'Kitchenette', en: 'Kitchenette' },
-  privateBathroom: { fr: 'SdB privative', en: 'Private bathroom' },
-  sharedBathroom: { fr: 'SdB partagée', en: 'Shared bathroom' },
+  privateBathroom: { fr: 'Salle de bain privative', en: 'Private bathroom' },
+  sharedBathroom: { fr: 'Salle de bain partagée', en: 'Shared bathroom' },
   terrace: { fr: 'Terrasse', en: 'Terrace' },
   garden: { fr: 'Jardin', en: 'Garden' },
   fireplace: { fr: 'Cheminée', en: 'Fireplace' },
@@ -29,15 +29,15 @@ const EQUIPMENT_LABELS: Record<EquipmentId, { fr: string; en: string }> = {
   washingMachine: { fr: 'Lave-linge', en: 'Washing machine' },
   dishwasher: { fr: 'Lave-vaisselle', en: 'Dishwasher' },
   parking: { fr: 'Parking', en: 'Parking' },
-  linenProvided: { fr: 'Linge fourni', en: 'Linen provided' },
+  linenProvided: { fr: 'Linge de lit fourni', en: 'Linen provided' },
   towelsProvided: { fr: 'Serviettes fournies', en: 'Towels provided' },
-  breakfastIncluded: { fr: 'Petit-déj inclus', en: 'Breakfast included' },
-  petsAllowed: { fr: 'Animaux OK', en: 'Pets welcome' },
+  breakfastIncluded: { fr: 'Petit-déjeuner inclus', en: 'Breakfast included' },
+  petsAllowed: { fr: 'Animaux acceptés', en: 'Pets welcome' },
   nonSmoking: { fr: 'Non-fumeur', en: 'Non-smoking' },
   accessible: { fr: 'Accès PMR', en: 'Accessible' },
 };
 
-const AccommodationCard = ({
+const Chapter = ({
   item,
   index,
   lang,
@@ -46,66 +46,134 @@ const AccommodationCard = ({
   index: number;
   lang: 'fr' | 'en';
 }) => {
+  const ref = useRef<HTMLElement | null>(null);
+  const layout = index % 2 === 0 ? 'imageLeft' : 'imageRight';
+  const num = String(index + 1).padStart(2, '0');
   const name = pickLocale(item.name, lang);
   const desc = pickLocale(item.shortDescription, lang);
-  const url = buildImageUrl(item.mainImage, { width: 900, height: 600, fit: 'crop', format: 'webp' });
+  const url = buildImageUrl(item.mainImage, {
+    width: 1000,
+    height: 1250,
+    fit: 'crop',
+    format: 'webp',
+  });
   const lqip = getLqip(item.mainImage);
   const alt = getAltText(item.mainImage, name);
-  const equipments = (item.equipments ?? []).slice(0, 5);
+
+  const roomLabel = (n: number) =>
+    lang === 'fr'
+      ? n > 1 ? 'chambres' : 'chambre'
+      : n > 1 ? 'rooms' : 'room';
+  const guestLabel = lang === 'fr' ? 'personnes' : 'guests';
+
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const ctx = gsap.context(() => {
+      gsap.from(el.querySelectorAll('[data-reveal]'), {
+        opacity: 0,
+        y: 32,
+        duration: 1.1,
+        ease: 'expo.out',
+        stagger: 0.08,
+        scrollTrigger: { trigger: el, start: 'top 78%', once: true },
+      });
+      const fig = el.querySelector<HTMLElement>('.space__visual');
+      if (fig) {
+        gsap.fromTo(
+          fig,
+          { clipPath: 'inset(16% 16% 16% 16%)' },
+          {
+            clipPath: 'inset(0%)',
+            duration: 1.5,
+            ease: 'expo.out',
+            scrollTrigger: { trigger: fig, start: 'top 82%', once: true },
+          },
+        );
+        const img = fig.querySelector('img');
+        if (img) {
+          gsap.fromTo(
+            img,
+            { scale: 1.12 },
+            {
+              scale: 1,
+              duration: 2,
+              ease: 'expo.out',
+              scrollTrigger: { trigger: fig, start: 'top 82%', once: true },
+            },
+          );
+        }
+      }
+    }, el);
+    return () => ctx.revert();
+  }, []);
 
   return (
-    <article className="accommodation-card" data-reveal style={{ '--i': index } as React.CSSProperties}>
-      {item.featured && <span className="accommodation-card__badge">Coup de cœur</span>}
-      <div
-        className="accommodation-card__media"
+    <article className="space" data-layout={layout} ref={ref}>
+      <figure
+        className="space__visual"
         style={lqip ? { backgroundImage: `url(${lqip})` } : undefined}
       >
-        {url && (
-          <img src={url} alt={alt} loading="lazy" decoding="async" />
+        {url && <img src={url} alt={alt} loading="lazy" decoding="async" />}
+      </figure>
+      <div className="space__content">
+        <span className="space__number" data-reveal aria-hidden="true">
+          {num}
+        </span>
+        {item.featured && (
+          <span className="space__featured" data-reveal>
+            {lang === 'fr' ? 'Coup de cœur' : 'Editor’s pick'}
+          </span>
         )}
-        <div className="accommodation-card__media-overlay" />
-      </div>
-      <div className="accommodation-card__body">
-        <h3 className="accommodation-card__name">{name}</h3>
-        {desc && <p className="accommodation-card__desc">{desc}</p>}
-
-        <ul className="accommodation-card__stats">
+        <h3 className="space__name" data-reveal>
+          {name}
+        </h3>
+        {desc && (
+          <p className="space__desc" data-reveal>
+            {desc}
+          </p>
+        )}
+        <ul className="space__stats" data-reveal>
           {typeof item.capacity === 'number' && (
             <li>
-              <span className="accommodation-card__stat-value">{item.capacity}</span>
-              <span className="accommodation-card__stat-label">pers.</span>
-            </li>
-          )}
-          {typeof item.bedrooms === 'number' && (
-            <li>
-              <span className="accommodation-card__stat-value">{item.bedrooms}</span>
-              <span className="accommodation-card__stat-label">ch.</span>
+              <span className="space__stat-value">{item.capacity}</span>
+              <span className="space__stat-label">{guestLabel}</span>
             </li>
           )}
           {typeof item.surfaceM2 === 'number' && (
             <li>
-              <span className="accommodation-card__stat-value">{item.surfaceM2}</span>
-              <span className="accommodation-card__stat-label">m²</span>
+              <span className="space__stat-value">{item.surfaceM2}</span>
+              <span className="space__stat-label">m²</span>
+            </li>
+          )}
+          {typeof item.bedrooms === 'number' && (
+            <li>
+              <span className="space__stat-value">{item.bedrooms}</span>
+              <span className="space__stat-label">{roomLabel(item.bedrooms)}</span>
             </li>
           )}
         </ul>
-
-        {equipments.length > 0 && (
-          <ul className="accommodation-card__equip">
-            {equipments.map((id) => (
-              <li key={id}>{EQUIPMENT_LABELS[id]?.[lang] ?? id}</li>
-            ))}
-            {(item.equipments?.length ?? 0) > equipments.length && (
-              <li className="accommodation-card__equip-more">
-                +{(item.equipments?.length ?? 0) - equipments.length}
+        {item.equipments && item.equipments.length > 0 && (
+          <ul className="space__amenities" data-reveal>
+            {item.equipments.slice(0, 6).map((id) => (
+              <li key={id}>
+                {EQUIPMENT_LABELS[id]?.[lang] ?? id}
               </li>
-            )}
+            ))}
           </ul>
         )}
       </div>
     </article>
   );
 };
+
+const Divider = () => (
+  <div className="spaces__divider" aria-hidden="true">
+    <span className="spaces__divider-line" />
+    <Coquillage className="spaces__divider-mark" variant="full" />
+    <span className="spaces__divider-line" />
+  </div>
+);
 
 const AccommodationsSection = ({ data }: { data: Data }) => {
   const { i18n } = useTranslation();
@@ -116,37 +184,68 @@ const AccommodationsSection = ({ data }: { data: Data }) => {
     const el = rootRef.current;
     if (!el) return;
     const ctx = gsap.context(() => {
-      gsap.from(el.querySelectorAll('[data-reveal]'), {
+      gsap.from(el.querySelectorAll('.spaces__head [data-reveal]'), {
         opacity: 0,
-        y: 48,
+        y: 32,
         duration: 1.1,
         ease: 'expo.out',
-        stagger: 0.12,
+        stagger: 0.08,
         scrollTrigger: { trigger: el, start: 'top 78%', once: true },
+      });
+      gsap.from(el.querySelectorAll('.spaces__divider'), {
+        opacity: 0,
+        scaleX: 0.5,
+        transformOrigin: 'center',
+        duration: 1.2,
+        ease: 'expo.out',
+        scrollTrigger: {
+          trigger: el,
+          start: 'top 60%',
+          once: true,
+        },
       });
     }, el);
     return () => ctx.revert();
   }, []);
 
-  const layout = data.layout ?? 'grid';
+  const eyebrow = pickLocale(data.eyebrow ?? undefined, lang);
+  const title = pickLocale(data.title, lang);
+  const intro = pickLocale(data.intro ?? undefined, lang);
 
   return (
     <section
       id={data.sectionId || 'hebergements'}
-      className={`accommodations accommodations--${layout}`}
+      className="spaces"
       ref={rootRef}
     >
-      <div className="container">
-        <SectionHeader
-          eyebrow={data.eyebrow ?? undefined}
-          title={data.title}
-          intro={data.intro ?? undefined}
-          align="left"
-        />
+      <div className="spaces__inner">
+        <header className="spaces__head">
+          {eyebrow && (
+            <p className="spaces__eyebrow" data-reveal>
+              <Coquillage
+                className="spaces__eyebrow-mark"
+                variant="rays"
+                rotate={90}
+              />
+              <span>{eyebrow}</span>
+            </p>
+          )}
+          <h2 className="spaces__title" data-reveal>
+            {title}
+          </h2>
+          {intro && (
+            <p className="spaces__intro" data-reveal>
+              {intro}
+            </p>
+          )}
+        </header>
 
-        <div className="accommodations__grid">
+        <div className="spaces__list">
           {data.accommodations.map((item, i) => (
-            <AccommodationCard key={item._id} item={item} index={i} lang={lang} />
+            <Fragment key={item._id}>
+              {i > 0 && <Divider />}
+              <Chapter item={item} index={i} lang={lang} />
+            </Fragment>
           ))}
         </div>
       </div>
