@@ -1,0 +1,379 @@
+@use "../abstracts/variables" as *;
+
+// Wrapping block so the scroll button can straddle the hero boundary
+// without being clipped by .hero's overflow: hidden (needed for the bg parallax).
+.hero-block {
+    position: relative;
+}
+
+.hero {
+    position: relative;
+    min-height: 95vh;
+    min-height: 95svh;
+    width: 100%;
+    overflow: hidden;
+    isolation: isolate;
+    color: #ffffff;
+
+    // ── Decorative background (absolute, behind the flex layout) ───────
+    &__bg {
+        position: absolute;
+        inset: -8% 0;
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        z-index: -2;
+        will-change: transform;
+    }
+
+    &__bg-image {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    &__overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+            180deg,
+            rgba(0, 0, 0, 0.18) 0%,
+            rgba(0, 0, 0, 0.28) 55%,
+            rgba(0, 0, 0, 0.4) 100%
+        );
+        z-index: -1;
+        pointer-events: none;
+    }
+
+    // ── Layout grid: auto / 1fr / auto ─────────────────────────────────
+    // The middle row grows to fill the remaining space, so the ornament
+    // auto-centers between the top cards and the bottom title (equidistant
+    // without hard-coded percentages).
+    &__layout {
+        position: relative;
+        z-index: 2;
+        min-height: 90vh;
+        min-height: 90svh;
+        display: grid;
+        grid-template-rows: auto 1fr auto;
+        padding: calc(
+                clamp(16px, 2.4vh, 32px) + clamp(52px, 6vh, 68px) +
+                    clamp(32px, 7vh, 96px)
+            )
+            var(--edge-padding) clamp(40px, 6vh, 80px);
+        gap: clamp(24px, 3vh, 64px);
+    }
+
+    // ── Row 1: top cards ───────────────────────────────────────────────
+    &__top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: var(--space-m);
+
+        @media (max-width: 640px) {
+            flex-direction: column;
+            gap: var(--space-s);
+        }
+    }
+
+    &__card-tl {
+        background: #ffffff;
+        color: var(--color-fg);
+        padding: clamp(18px, 1.5vw, 28px) clamp(20px, 1.6vw, 30px);
+        max-width: clamp(280px, 22vw, 420px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+
+        p {
+            font-family: var(--font-body);
+            font-size: clamp(13px, 0.95vw, 16px);
+            line-height: 1.55;
+            color: #2a2a2a;
+            margin: 0;
+            letter-spacing: 0.005em;
+        }
+
+        @media (max-width: 640px) {
+            max-width: 100%;
+            align-self: stretch;
+        }
+    }
+
+    &__cluster-tr {
+        display: flex;
+        gap: clamp(8px, 0.7vw, 12px);
+        align-items: stretch;
+
+        @media (max-width: 640px) {
+            align-self: stretch;
+            justify-content: space-between;
+        }
+    }
+
+    &__location-pill {
+        display: flex;
+        align-items: center;
+        gap: clamp(10px, 0.9vw, 16px);
+        background: #ffffff;
+        padding: clamp(10px, 0.8vw, 14px) clamp(16px, 1.4vw, 24px)
+            clamp(10px, 0.8vw, 14px) clamp(10px, 0.8vw, 14px);
+        color: var(--color-fg);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        min-width: clamp(240px, 20vw, 360px);
+
+        @media (max-width: 640px) {
+            flex: 1;
+            min-width: 0;
+        }
+    }
+
+    &__location-pin {
+        flex-shrink: 0;
+        width: clamp(40px, 3vw, 54px);
+        height: clamp(40px, 3vw, 54px);
+        background: var(--color-secondary);
+        display: grid;
+        place-items: center;
+        color: var(--color-primary);
+
+        svg {
+            width: clamp(18px, 1.4vw, 26px);
+            height: clamp(18px, 1.4vw, 26px);
+        }
+    }
+
+    &__location-text {
+        display: flex;
+        flex-direction: column;
+        line-height: 1.15;
+        flex: 1;
+        min-width: 0;
+    }
+
+    &__location-city {
+        font-size: clamp(13px, 1vw, 16px);
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        color: var(--color-fg);
+        text-transform: uppercase;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    &__location-region {
+        font-size: clamp(11px, 0.85vw, 13px);
+        color: var(--color-muted);
+        letter-spacing: 0.04em;
+        margin-top: 2px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    &__location-details {
+        font-size: clamp(12px, 0.9vw, 14px);
+        color: var(--color-fg);
+        text-decoration: underline;
+        text-underline-offset: 3px;
+        font-weight: 500;
+        white-space: nowrap;
+        transition: color 0.2s;
+
+        &:hover {
+            color: var(--color-accent);
+        }
+    }
+
+    &__tiles {
+        display: flex;
+        flex-direction: column;
+        gap: clamp(4px, 0.4vw, 8px);
+    }
+
+    &__tile {
+        width: clamp(44px, 3.2vw, 60px);
+        height: clamp(44px, 3.2vw, 60px);
+        background: #ffffff;
+        border: none;
+        display: grid;
+        place-items: center;
+        color: var(--color-primary);
+        cursor: pointer;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        transition:
+            transform 0.25s $ease-out-expo,
+            background 0.25s;
+
+        svg {
+            width: clamp(20px, 1.4vw, 28px);
+            height: clamp(20px, 1.4vw, 28px);
+        }
+
+        &:hover {
+            transform: translateY(-2px);
+            background: var(--color-secondary);
+        }
+
+        @media (max-width: 640px) {
+            width: 40px;
+            height: 40px;
+            svg {
+                width: 18px;
+                height: 18px;
+            }
+        }
+    }
+
+    // ── Row 2: middle — ornament sits in the lower portion of the free
+    // space so it breathes more under the top cards (closer to the title).
+    &__middle {
+        display: flex;
+        align-items: flex-end;
+        min-height: 0;
+        padding-bottom: clamp(24px, 4vh, 64px);
+    }
+
+    &__ornament {
+        display: flex;
+        align-items: center;
+        gap: clamp(16px, 1.6vw, 32px);
+        color: rgba(255, 255, 255, 0.85);
+        width: 100%;
+    }
+
+    &__ornament-shell {
+        width: clamp(96px, 8.4vw, 154px);
+        height: clamp(96px, 8.4vw, 154px);
+        color: #ffffff;
+        flex-shrink: 0;
+    }
+
+    &__ornament-line {
+        display: block;
+        height: 1.5px;
+        flex: 1;
+        max-width: clamp(240px, 32vw, 520px);
+        background: rgba(255, 255, 255, 0.72);
+    }
+
+    // ── Row 3: bottom — title ferré bas ────────────────────────────────
+    &__bottom {
+        display: flex;
+        align-items: flex-end;
+    }
+
+    &__title {
+        font-family: var(--font-display);
+        font-weight: 400;
+        color: #ffffff;
+        font-size: clamp(40px, 6vw, 96px);
+        display: flex;
+        flex-direction: column;
+
+        .hero__title-line {
+            display: block;
+            will-change: transform, opacity;
+        }
+
+        .hero__title-line + .hero__title-line {
+            margin-top: -0.04em;
+        }
+
+        @media (max-width: 640px) {
+            font-size: clamp(34px, 9.5vw, 62px);
+            line-height: 1;
+        }
+    }
+}
+
+// ── Scroll button — straddles the hero/next-section boundary ──────────
+// Half on the hero (dark image), half on the next section (light bg).
+// Sits inside `.hero-block` so it escapes `.hero`'s overflow: hidden.
+.hero__scroll-btn {
+    --size: clamp(68px, 5.2vw, 92px);
+
+    position: absolute;
+    right: var(--edge-padding);
+    bottom: 0;
+    transform: translateY(50%);
+
+    width: var(--size);
+    height: var(--size);
+    border-radius: 50%;
+    background: var(--color-primary);
+    color: #ffffff;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    display: grid;
+    place-items: center;
+    z-index: 5;
+    box-shadow:
+        0 14px 34px rgba(0, 0, 0, 0.22),
+        0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+    transition:
+        transform 0.35s $ease-out-expo,
+        background 0.3s $ease-out-expo,
+        color 0.3s $ease-out-expo,
+        box-shadow 0.3s $ease-out-expo;
+
+    // Decorative outer ring — visible on both dark and light sides
+    &::before {
+        content: "";
+        position: absolute;
+        inset: -10px;
+        border-radius: 50%;
+        border: 1px solid var(--color-accent);
+        opacity: 0.55;
+        pointer-events: none;
+        transition:
+            transform 0.4s $ease-out-expo,
+            opacity 0.3s;
+    }
+
+    &__icon {
+        display: grid;
+        place-items: center;
+        animation: heroScrollBounce 2.2s $ease-in-out infinite;
+    }
+
+    svg {
+        width: calc(var(--size) * 0.32);
+        height: calc(var(--size) * 0.32);
+    }
+
+    &:hover {
+        background: var(--color-accent);
+        color: var(--color-primary);
+        transform: translateY(calc(50% - 3px));
+        box-shadow:
+            0 18px 40px rgba(0, 0, 0, 0.28),
+            0 0 0 1px rgba(0, 0, 0, 0.08) inset;
+
+        &::before {
+            transform: scale(1.1);
+            opacity: 0.9;
+        }
+    }
+
+    &:active {
+        transform: translateY(50%);
+    }
+
+    @media (max-width: 640px) {
+        --size: 60px;
+    }
+}
+
+@keyframes heroScrollBounce {
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(4px);
+    }
+}

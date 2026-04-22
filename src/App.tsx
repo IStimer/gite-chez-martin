@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import ErrorBoundary from './components/ErrorBoundary';
 import LenisProvider from './providers/LenisProvider';
+import { ContentProvider } from './providers/ContentProvider';
 import LanguageRedirect from './components/LanguageRedirect';
 import LanguageLayout from './components/LanguageLayout';
 import Home from './pages/Home';
@@ -22,11 +23,13 @@ function App() {
   return (
     <HelmetProvider>
       <ErrorBoundary>
-        <Router>
-          <LenisProvider options={{ duration: 1.2, smoothWheel: true, wheelMultiplier: 0.8 }}>
-            <AppRoutes />
-          </LenisProvider>
-        </Router>
+        <ContentProvider>
+          <Router>
+            <LenisProvider options={{ duration: 0.8, smoothWheel: true, wheelMultiplier: 1 }}>
+              <AppRoutes />
+            </LenisProvider>
+          </Router>
+        </ContentProvider>
       </ErrorBoundary>
     </HelmetProvider>
   );

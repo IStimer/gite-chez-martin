@@ -1,0 +1,163 @@
+import { useEffect, useState, type MouseEvent } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useSiteSettings } from '../providers/ContentProvider';
+import { lenisService } from '../services/lenisService';
+import { extractBaseLang } from '../i18n/routes';
+import { pickLocale } from '../i18n/localized';
+import { urlFor } from '../services/sanityClient';
+import Coquillage from './Coquillage';
+import type { Link as CmsLink } from '../types/content';
+
+const Header = () => {
+  const { i18n } = useTranslation();
+  const lang = extractBaseLang(i18n.language);
+  const site = useSiteSettings();
+  const [open, setOpen] = useState(false);
+  const [activeAnchor, setActiveAnchor] = useState<string | null>(null);
+
+  // Close mobile nav on resize out of mobile
+  useEffect(() => {
+    const onResize = () => { if (window.innerWidth > 768) setOpen(false); };
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
+  // Observe sections to highlight active anchor
+  useEffect(() => {
+    const sections = Array.from(document.querySelectorAll<HTMLElement>('section[id]'));
+    if (!sections.length) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        if (visible?.target?.id) setActiveAnchor(visible.target.id);
+      },
+      { rootMargin: '-40% 0px -40% 0px', threshold: [0, 0.25, 0.5] },
+    );
+    sections.forEach((s) => observer.observe(s));
+    return () => observer.disconnect();
+  }, [site]);
+
+  const nav = site?.mainNavigation ?? [];
+
+  const handleAnchorClick = (e: MouseEvent<HTMLAnchorElement>, anchor: string) => {
+    e.preventDefault();
+    const el = document.getElementById(anchor);
+    if (!el) return;
+    lenisService.scrollTo(el, { offset: -72, duration: 1.2 });
+    setOpen(false);
+  };
+
+  const renderLink = (link: CmsLink, idx: number) => {
+    const label = pickLocale(link.label, lang);
+    if (!label) return null;
+    const key = `${link.kind}-${idx}`;
+    const isActive = link.kind === 'anchor' && link.anchor === activeAnchor;
+
+    if (link.kind === 'anchor' && link.anchor) {
+      return (
+        <a
+          key={key}
+          href={`#${link.anchor}`}
+          className={`header__link ${isActive ? 'is-active' : ''}`}
+          onClick={(e) => handleAnchorClick(e, link.anchor!)}
+        >
+          {label}
+        </a>
+      );
+    }
+    if (link.kind === 'external') {
+      return (
+        <a
+          key={key}
+          href={link.href}
+          target={link.openInNewTab ? '_blank' : undefined}
+          rel={link.openInNewTab ? 'noopener noreferrer' : undefined}
+          className="header__link"
+        >
+          {label}
+        </a>
+      );
+    }
+    if (link.kind === 'email') {
+      return <a key={key} href={`mailto:${link.href}`} className="header__link">{label}</a>;
+    }
+    if (link.kind === 'tel') {
+      return <a key={key} href={`tel:${link.href}`} className="header__link">{label}</a>;
+    }
+    return null;
+  };
+
+  const airbnbUrl = site?.externalLinks?.airbnb ?? null;
+  const siteName = pickLocale(site?.siteName, lang) || 'Gîte chez Martin';
+  const reserveLabel = lang === 'fr' ? 'Réserver' : 'Booking';
+
+  return (
+    <header className={`header ${open ? 'is-open' : ''}`}>
+      <div className="header__inner">
+        <a
+          href="#accueil"
+          className="header__brand"
+          onClick={(e) => handleAnchorClick(e, 'accueil')}
+          aria-label={siteName}
+        >
+          <Coquillage className="header__mark" />
+          <span className="header__name">{siteName}</span>
+        </a>
+
+        <nav className="header__nav" aria-label="Navigation principale">
+          {nav.map(renderLink)}
+        </nav>
+
+        <div className="header__actions">
+          {airbnbUrl && (
+            <a
+              href={airbnbUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="header__cta"
+            >
+              {reserveLabel}
+            </a>
+          )}
+          <button
+            type="button"
+            className="header__burger"
+            aria-label="Menu"
+            aria-expanded={open}
+            onClick={() => setOpen((v) => !v)}
+          >
+            <span /><span /><span />
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile drawer */}
+      <nav className="header__mobile" aria-label="Navigation mobile">
+        {nav.map(renderLink)}
+        {airbnbUrl && (
+          <a
+            href={airbnbUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="header__mobile-cta"
+          >
+            {reserveLabel}
+          </a>
+        )}
+      </nav>
+
+      {/* Preload logo silently if present (for LCP) */}
+      {site?.logo?.asset?.url && (
+        <link
+          rel="preload"
+          as="image"
+          href={urlFor(site.logo.asset.url).width(280).format('webp').url()}
+        />
+      )}
+    </header>
+  );
+};
+
+export default Header;

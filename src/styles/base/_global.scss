@@ -1,12 +1,24 @@
+@use '../abstracts/variables' as *;
+
 :root {
-  --color-bg: #faf8f3;
-  --color-fg: #1a1a1a;
+  // Theme palette (overridden by ContentProvider from siteSettings.theme)
+  --color-bg: #FBF8F1;
+  --color-fg: #1A1A1A;
+  --color-primary: #1F3A2E;
+  --color-secondary: #E8DEC5;
+  --color-accent: #C9A45B;
+  --color-primary-soft: #1F3A2EE6;
+  --color-primary-faded: #1F3A2E1A;
+  --color-secondary-muted: #E8DEC5CC;
   --color-muted: #6b6b6b;
-  --color-accent: #7c6340;
+  --color-border: rgba(31, 58, 46, 0.12);
 
-  --font-display: "PP Editorial New", Georgia, serif;
-  --font-body: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  // Typography
+  --font-display: "Cormorant Garamond", "PP Editorial New", Georgia, serif;
+  --font-body: "Inter", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-mono: "JetBrains Mono", "SF Mono", Menlo, monospace;
 
+  // Spacing scale
   --space-3xs: 4px;
   --space-2xs: 8px;
   --space-xs: 12px;
@@ -15,13 +27,25 @@
   --space-l: 40px;
   --space-xl: 64px;
   --space-2xl: 96px;
+  --space-3xl: 144px;
 
+  // Layout
   --edge-padding: 5vw;
+  --header-height: #{$header-height};
+  --section-padding-y: clamp(64px, 10vw, 144px);
+
+  // Motion
+  --ease-out-expo: #{$ease-out-expo};
+  --ease-out-quart: #{$ease-out-quart};
+
+  @media (max-width: $bp-mobile) {
+    --header-height: #{$header-height-mobile};
+  }
 }
 
 html {
   background: var(--color-bg);
-  scrollbar-gutter: stable;
+  // Note: no scrollbar-gutter / scroll-behavior — Lenis owns scroll.
 }
 
 body {
@@ -32,26 +56,57 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+  // `clip` instead of `hidden` prevents creating a scroll container
+  // while still hiding decorative elements bleeding horizontally.
+  overflow-x: clip;
 }
 
 ::selection {
-  background: var(--color-fg);
-  color: var(--color-bg);
+  background: var(--color-primary);
+  color: var(--color-secondary);
 }
 
-h1, h2, h3 {
+h1, h2, h3, h4 {
   font-family: var(--font-display);
-  font-weight: 400;
-  line-height: 1.1;
+  font-weight: 500;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  color: var(--color-primary);
 }
 
 p {
-  line-height: 1.6;
+  line-height: 1.65;
+}
+
+a {
+  color: inherit;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+img {
+  max-width: 100%;
+  display: block;
 }
 
 main {
   display: block;
   min-height: 100vh;
+}
+
+// Utility: wrap content at a max width
+.container {
+  width: 100%;
+  max-width: $content-max;
+  margin-inline: auto;
+  padding-inline: var(--edge-padding);
+}
+
+.container--narrow {
+  max-width: $content-max-narrow;
 }
 
 @media (prefers-reduced-motion: reduce) {

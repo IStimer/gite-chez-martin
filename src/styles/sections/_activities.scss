@@ -1,0 +1,100 @@
+@use '../abstracts/variables' as *;
+
+.activities {
+  padding-block: var(--section-padding-y);
+  background: var(--color-bg);
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-m);
+
+    @media (max-width: $bp-desktop) { grid-template-columns: repeat(2, 1fr); }
+    @media (max-width: 640px)       { grid-template-columns: 1fr; }
+  }
+}
+
+.activity-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg);
+  text-decoration: none;
+  color: inherit;
+  border-radius: 4px;
+  overflow: hidden;
+  transition: transform 0.4s $ease-out-expo;
+
+  &:hover {
+    transform: translateY(-4px);
+
+    .activity-card__media img { transform: scale(1.08); }
+    .activity-card__name { color: var(--color-accent); }
+  }
+
+  &__media {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    background: var(--color-secondary);
+    background-size: cover;
+    background-position: center;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.8s $ease-out-expo;
+    }
+  }
+
+  &__category {
+    position: absolute;
+    top: var(--space-s);
+    left: var(--space-s);
+    padding: 6px 12px;
+    background: var(--color-primary);
+    color: var(--color-secondary);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    border-radius: 2px;
+  }
+
+  &__body {
+    padding: var(--space-m) var(--space-s) var(--space-l);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+    flex: 1;
+  }
+
+  &__name {
+    font-size: 19px;
+    line-height: 1.25;
+    font-family: var(--font-display);
+    color: var(--color-primary);
+    transition: color 0.25s;
+  }
+
+  &__desc {
+    font-size: 14px;
+    color: var(--color-muted);
+    line-height: 1.5;
+    flex: 1;
+  }
+
+  &__meta {
+    display: flex;
+    gap: var(--space-m);
+    padding-top: var(--space-xs);
+    border-top: 1px solid var(--color-border);
+    font-size: 12px;
+    color: var(--color-muted);
+    letter-spacing: 0.04em;
+    margin-top: auto;
+
+    span + span { padding-left: var(--space-m); border-left: 1px solid var(--color-border); }
+  }
+}

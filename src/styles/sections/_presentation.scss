@@ -1,0 +1,73 @@
+@use '../abstracts/variables' as *;
+
+.presentation {
+  padding-block: var(--section-padding-y);
+  background: var(--color-bg);
+
+  &__inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(40px, 6vw, 120px);
+    align-items: center;
+
+    @media (max-width: $bp-tablet) {
+      grid-template-columns: 1fr;
+      gap: var(--space-xl);
+    }
+  }
+
+  &--imageLeft &__inner { direction: rtl; > * { direction: ltr; } }
+
+  &--imageTop &__inner { grid-template-columns: 1fr; }
+
+  &__content {
+    max-width: 560px;
+
+    @media (max-width: $bp-tablet) {
+      order: 2;
+    }
+  }
+
+  &__body {
+    color: var(--color-fg);
+    font-size: clamp(15px, 1.4vw, 17px);
+    line-height: 1.75;
+
+    p + p { margin-top: var(--space-m); }
+    p + h2, p + h3 { margin-top: var(--space-l); }
+    h3 { font-size: clamp(22px, 2vw, 28px); margin-bottom: var(--space-s); }
+  }
+
+  &__image {
+    position: relative;
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    border-radius: 4px;
+    background-size: cover;
+    background-position: center;
+    will-change: clip-path;
+
+    @media (max-width: $bp-tablet) {
+      order: 1;
+      max-height: 480px;
+    }
+
+    img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      will-change: transform;
+    }
+
+    // Decorative frame
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 18px;
+      border: 1px solid rgba(232, 222, 197, 0.4);
+      pointer-events: none;
+    }
+  }
+}

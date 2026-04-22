@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useLayoutEffect, useState, ReactNode } from 'react';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { lenisService } from '../services/lenisService';

@@ -9,6 +9,20 @@
 // Components
 @use 'components/page-loader';
 @use 'components/error-boundary';
+@use 'components/header';
+@use 'components/footer';
+@use 'components/section-header';
 
-// Pages
+// Sections
+@use 'sections/hero';
+@use 'sections/presentation';
+@use 'sections/accommodations';
+@use 'sections/gallery';
+@use 'sections/pricing';
+@use 'sections/testimonials';
+@use 'sections/activities';
+@use 'sections/location';
+@use 'sections/contact';
+
+// Pages (kept for legacy layout; removed later if empty)
 @use 'pages/home';

@@ -1,0 +1,110 @@
+@use '../abstracts/variables' as *;
+
+.footer {
+  background: var(--color-primary);
+  color: var(--color-secondary);
+  padding-top: var(--space-2xl);
+  padding-bottom: var(--space-m);
+  margin-top: var(--space-2xl);
+
+  &__inner {
+    display: grid;
+    grid-template-columns: minmax(280px, 1fr) 2fr;
+    gap: var(--space-2xl);
+    padding-bottom: var(--space-xl);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+    @media (max-width: $bp-mobile) {
+      grid-template-columns: 1fr;
+      gap: var(--space-xl);
+    }
+  }
+
+  &__brand {
+    display: flex;
+    gap: var(--space-m);
+    align-items: flex-start;
+  }
+
+  &__mark {
+    width: 56px;
+    height: 56px;
+    color: var(--color-accent);
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  &__name {
+    font-family: var(--font-display);
+    font-size: 28px;
+    line-height: 1.1;
+    color: var(--color-secondary);
+    margin-bottom: var(--space-2xs);
+  }
+
+  &__tagline {
+    font-size: 14px;
+    opacity: 0.7;
+    max-width: 280px;
+    line-height: 1.5;
+  }
+
+  &__columns {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-l);
+
+    @media (max-width: 640px) {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  &__col {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xs);
+  }
+
+  &__title {
+    font-family: var(--font-body);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--color-accent);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    margin-bottom: var(--space-xs);
+  }
+
+  &__link {
+    color: var(--color-secondary);
+    text-decoration: none;
+    font-size: 14px;
+    line-height: 1.8;
+    opacity: 0.85;
+    transition: opacity 0.2s, transform 0.2s;
+
+    &:hover {
+      opacity: 1;
+      transform: translateX(2px);
+      color: var(--color-accent);
+    }
+  }
+
+  &__address {
+    font-size: 13px;
+    line-height: 1.6;
+    opacity: 0.7;
+    white-space: pre-line;
+    margin-top: var(--space-2xs);
+  }
+
+  &__bottom {
+    padding-top: var(--space-m);
+  }
+
+  &__copyright {
+    font-size: 12px;
+    opacity: 0.55;
+    letter-spacing: 0.02em;
+  }
+}

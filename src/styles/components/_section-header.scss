@@ -1,0 +1,48 @@
+@use '../abstracts/variables' as *;
+
+.section-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  margin-bottom: var(--space-2xl);
+  max-width: 760px;
+
+  &--center {
+    margin-inline: auto;
+    align-items: center;
+    text-align: center;
+  }
+
+  &__eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-s);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    font-weight: 600;
+    color: var(--color-accent);
+  }
+
+  &__eyebrow-line {
+    width: 40px;
+    height: 1px;
+    background: currentColor;
+    opacity: 0.6;
+  }
+
+  &__title {
+    font-size: clamp(32px, 4.4vw, 56px);
+    font-weight: 500;
+    line-height: 1.02;
+    color: var(--color-primary);
+    letter-spacing: -0.015em;
+  }
+
+  &__intro {
+    color: var(--color-muted);
+    font-size: clamp(15px, 1.4vw, 17px);
+    line-height: 1.65;
+    max-width: 620px;
+  }
+}

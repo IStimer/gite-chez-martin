@@ -1,76 +1,45 @@
-import { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { PortableText } from '@portabletext/react';
 import SEO from '../components/SEO';
 import PageLoader from '../components/PageLoader';
-import { urlFor } from '../services/sanityClient';
-import { fetchPage } from '../services/pageService';
-import type { Page } from '../types/page';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
+import SectionRenderer from '../components/sections/SectionRenderer';
+import { useContent } from '../providers/ContentProvider';
 
 const Home = () => {
-  const { t } = useTranslation();
-  const [page, setPage] = useState<Page | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [heroLoaded, setHeroLoaded] = useState(false);
-
-  useEffect(() => {
-    let cancelled = false;
-    fetchPage()
-      .then((data) => {
-        if (!cancelled) setPage(data);
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const { homePage, siteSettings, loading, error } = useContent();
 
   if (loading) return <PageLoader />;
 
-  const title = page?.title ?? t('meta.title');
-  const description = page?.description ?? t('meta.description');
-
-  const heroUrl = page?.heroImage
-    ? urlFor(page.heroImage).width(1920).format('webp').quality(85).url()
-    : undefined;
-  const heroLqip = page?.heroImage?.asset.lqip ?? undefined;
+  if (error || !homePage) {
+    return (
+      <main className="home">
+        <Header />
+        <div
+          style={{
+            paddingTop: 'calc(var(--header-height) + 120px)',
+            minHeight: '60vh',
+            textAlign: 'center',
+            padding: '200px 24px',
+          }}
+        >
+          <h1>Contenu indisponible</h1>
+          <p style={{ color: 'var(--color-muted)', marginTop: 16 }}>
+            Merci de réessayer dans un instant.
+          </p>
+        </div>
+      </main>
+    );
+  }
 
   return (
-    <main className="home">
-      <SEO
-        title={title}
-        description={description}
-        image={heroUrl}
-      />
-
-      {heroUrl && (
-        <div
-          className="home__hero"
-          style={heroLqip ? { backgroundImage: `url(${heroLqip})` } : undefined}
-        >
-          <img
-            className={`home__hero-image ${heroLoaded ? 'is-loaded' : ''}`}
-            src={heroUrl}
-            alt=""
-            onLoad={() => setHeroLoaded(true)}
-            loading="eager"
-            decoding="async"
-          />
-        </div>
-      )}
-
-      <section className="home__content">
-        <h1 className="home__title">{title}</h1>
-        {description && <p className="home__description">{description}</p>}
-        {page?.body && (
-          <div className="home__body">
-            <PortableText value={page.body} />
-          </div>
-        )}
-      </section>
-    </main>
+    <>
+      <SEO />
+      <Header />
+      <main className="home" data-has-settings={!!siteSettings}>
+        <SectionRenderer sections={homePage.sections ?? []} />
+      </main>
+      <Footer />
+    </>
   );
 };
 
