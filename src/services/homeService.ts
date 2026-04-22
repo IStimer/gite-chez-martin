@@ -56,7 +56,9 @@ const SECTION_PROJECTION = /* groq */ `
   },
   _type == "presentationSection" => {
     body, layout,
-    "image": image{ ${IMAGE_WITH_ALT} }
+    "image": image{ ${IMAGE_WITH_ALT} },
+    "wideImage": wideImage{ ${IMAGE_WITH_ALT} },
+    "secondaryImage": secondaryImage{ ${IMAGE_WITH_ALT} }
   },
   _type == "accommodationsSection" => {
     intro, layout,

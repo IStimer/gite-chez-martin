@@ -208,8 +208,10 @@ export interface HeroSection extends Omit<SectionBase, 'title'> {
 export interface PresentationSection extends SectionBase {
   _type: 'presentationSection';
   body?: LocalePortableText | null;
-  image?: ImageWithAlt | null;
-  layout?: 'imageLeft' | 'imageRight' | 'imageTop';
+  image?: ImageWithAlt | null;            // main square image (top-right)
+  wideImage?: ImageWithAlt | null;        // wide image below text (same width)
+  secondaryImage?: ImageWithAlt | null;   // square image below main (right column)
+  layout?: 'imageLeft' | 'imageRight' | 'imageTop'; // legacy, unused in new layout
 }
 
 export interface AccommodationsSection extends SectionBase {

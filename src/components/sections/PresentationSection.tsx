@@ -1,21 +1,28 @@
 import { useLayoutEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import type { PresentationSection as Data } from '../../types/content';
-import SectionHeader from './SectionHeader';
+import { extractBaseLang } from '../../i18n/routes';
+import { pickLocale } from '../../i18n/localized';
 import LocalizedPortableText from '../LocalizedPortableText';
+import Coquillage from '../Coquillage';
 import { buildImageUrl, getLqip, getAltText } from '../../services/imageUrl';
 
 if (typeof window !== 'undefined') gsap.registerPlugin(ScrollTrigger);
 
 const PresentationSection = ({ data }: { data: Data }) => {
+  const { i18n } = useTranslation();
+  const lang = extractBaseLang(i18n.language);
   const rootRef = useRef<HTMLElement | null>(null);
-  const imageRef = useRef<HTMLDivElement | null>(null);
 
-  const layout = data.layout ?? 'imageRight';
-  const imageUrl = buildImageUrl(data.image, { width: 1400, format: 'webp', quality: 85 });
-  const lqip = getLqip(data.image);
-  const alt = getAltText(data.image, '');
+  const title = pickLocale(data.title, lang);
+  const titleLines = title.split(/\r?\n/).filter(Boolean);
+  const eyebrow = pickLocale(data.eyebrow ?? undefined, lang);
+
+  const mainImg = data.image;
+  const wideImg = data.wideImage;
+  const secondaryImg = data.secondaryImage;
 
   useLayoutEffect(() => {
     const el = rootRef.current;
@@ -27,30 +34,35 @@ const PresentationSection = ({ data }: { data: Data }) => {
         duration: 1.1,
         ease: 'expo.out',
         stagger: 0.1,
-        scrollTrigger: { trigger: el, start: 'top 75%', once: true },
+        scrollTrigger: { trigger: el, start: 'top 78%', once: true },
       });
-      if (imageRef.current) {
+
+      // Image reveal via clip-path on each figure independently
+      el.querySelectorAll<HTMLElement>('[data-image-reveal]').forEach((fig) => {
         gsap.fromTo(
-          imageRef.current.querySelector('img'),
-          { scale: 1.08 },
-          {
-            scale: 1,
-            duration: 1.8,
-            ease: 'expo.out',
-            scrollTrigger: { trigger: imageRef.current, start: 'top 80%', once: true },
-          },
-        );
-        gsap.fromTo(
-          imageRef.current,
-          { clipPath: 'inset(20% 20% 20% 20%)' },
+          fig,
+          { clipPath: 'inset(14% 14% 14% 14%)' },
           {
             clipPath: 'inset(0% 0% 0% 0%)',
-            duration: 1.6,
+            duration: 1.4,
             ease: 'expo.out',
-            scrollTrigger: { trigger: imageRef.current, start: 'top 80%', once: true },
+            scrollTrigger: { trigger: fig, start: 'top 82%', once: true },
           },
         );
-      }
+        const img = fig.querySelector('img');
+        if (img) {
+          gsap.fromTo(
+            img,
+            { scale: 1.08 },
+            {
+              scale: 1,
+              duration: 1.8,
+              ease: 'expo.out',
+              scrollTrigger: { trigger: fig, start: 'top 82%', once: true },
+            },
+          );
+        }
+      });
     }, el);
     return () => ctx.revert();
   }, []);
@@ -58,30 +70,88 @@ const PresentationSection = ({ data }: { data: Data }) => {
   return (
     <section
       id={data.sectionId || 'presentation'}
-      className={`presentation presentation--${layout}`}
+      className="presentation"
       ref={rootRef}
     >
-      <div className="container presentation__inner">
-        <div className="presentation__content">
-          <SectionHeader
-            eyebrow={data.eyebrow ?? undefined}
-            title={data.title}
-            align="left"
-          />
-          <div className="presentation__body" data-reveal>
-            <LocalizedPortableText value={data.body} />
-          </div>
-        </div>
+      <div className="presentation__inner">
+        {/* Row 1 — full-width title block */}
+        <header className="presentation__head">
+          {eyebrow && (
+            <p className="presentation__eyebrow" data-reveal>
+              <Coquillage
+                className="presentation__eyebrow-mark"
+                variant="rays"
+                rotate={90}
+              />
+              <span>{eyebrow}</span>
+            </p>
+          )}
+          <h2 className="presentation__title" data-reveal>
+            {titleLines.map((line, i) => (
+              <span key={i} className="presentation__title-line">
+                {line}
+              </span>
+            ))}
+          </h2>
+        </header>
 
-        {imageUrl && (
+        {/* Row 2+3 — 2×2 grid: text | main // wide | secondary */}
+        <div className="presentation__grid">
           <div
-            ref={imageRef}
-            className="presentation__image"
-            style={lqip ? { backgroundImage: `url(${lqip})` } : undefined}
+            className="presentation__cell presentation__cell--text"
+            data-reveal
           >
-            <img src={imageUrl} alt={alt} loading="lazy" decoding="async" />
+            <LocalizedPortableText
+              value={data.body}
+              className="presentation__body"
+            />
           </div>
-        )}
+
+          {mainImg?.image && (
+            <figure
+              className="presentation__cell presentation__figure presentation__figure--square presentation__figure--main"
+              data-image-reveal
+            >
+              <img
+                src={buildImageUrl(mainImg, { width: 900, height: 900, fit: 'crop', format: 'webp' })}
+                alt={getAltText(mainImg, '')}
+                loading="lazy"
+                decoding="async"
+                style={getLqip(mainImg) ? { backgroundImage: `url(${getLqip(mainImg)})` } : undefined}
+              />
+            </figure>
+          )}
+
+          {wideImg?.image && (
+            <figure
+              className="presentation__cell presentation__figure presentation__figure--wide"
+              data-image-reveal
+            >
+              <img
+                src={buildImageUrl(wideImg, { width: 1400, height: 933, fit: 'crop', format: 'webp' })}
+                alt={getAltText(wideImg, title)}
+                loading="lazy"
+                decoding="async"
+                style={getLqip(wideImg) ? { backgroundImage: `url(${getLqip(wideImg)})` } : undefined}
+              />
+            </figure>
+          )}
+
+          {secondaryImg?.image && (
+            <figure
+              className="presentation__cell presentation__figure presentation__figure--square presentation__figure--secondary"
+              data-image-reveal
+            >
+              <img
+                src={buildImageUrl(secondaryImg, { width: 900, height: 900, fit: 'crop', format: 'webp' })}
+                alt={getAltText(secondaryImg, '')}
+                loading="lazy"
+                decoding="async"
+                style={getLqip(secondaryImg) ? { backgroundImage: `url(${getLqip(secondaryImg)})` } : undefined}
+              />
+            </figure>
+          )}
+        </div>
       </div>
     </section>
   );

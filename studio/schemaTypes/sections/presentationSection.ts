@@ -35,22 +35,21 @@ export const presentationSection = defineType({
     }),
     defineField({
       name: 'image',
-      title: 'Image d’illustration',
+      title: 'Image principale (carrée, haut-droite)',
+      description: 'Affichée à droite du bloc de texte.',
       type: 'imageWithAlt',
     }),
     defineField({
-      name: 'layout',
-      title: 'Disposition',
-      type: 'string',
-      options: {
-        list: [
-          { title: 'Image à gauche, texte à droite', value: 'imageLeft' },
-          { title: 'Image à droite, texte à gauche', value: 'imageRight' },
-          { title: 'Image au-dessus, texte en dessous', value: 'imageTop' },
-        ],
-        layout: 'radio',
-      },
-      initialValue: 'imageRight',
+      name: 'wideImage',
+      title: 'Image large (en dessous du texte)',
+      description: 'Affichée sous le texte, même largeur que la colonne texte.',
+      type: 'imageWithAlt',
+    }),
+    defineField({
+      name: 'secondaryImage',
+      title: 'Image secondaire (carrée, bas-droite)',
+      description: 'Affichée sous l’image principale, même largeur que celle-ci.',
+      type: 'imageWithAlt',
     }),
   ],
   preview: {
