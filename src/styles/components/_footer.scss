@@ -1,110 +1,246 @@
 @use '../abstracts/variables' as *;
 
 .footer {
-  background: var(--color-primary);
-  color: var(--color-secondary);
-  padding-top: var(--space-2xl);
-  padding-bottom: var(--space-m);
-  margin-top: var(--space-2xl);
-
-  &__inner {
-    display: grid;
-    grid-template-columns: minmax(280px, 1fr) 2fr;
-    gap: var(--space-2xl);
-    padding-bottom: var(--space-xl);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-
-    @media (max-width: $bp-mobile) {
-      grid-template-columns: 1fr;
-      gap: var(--space-xl);
-    }
-  }
-
-  &__brand {
-    display: flex;
-    gap: var(--space-m);
-    align-items: flex-start;
-  }
-
-  &__mark {
-    width: 56px;
-    height: 56px;
-    color: var(--color-accent);
-    flex-shrink: 0;
-    margin-top: 2px;
-  }
-
-  &__name {
-    font-family: var(--font-display);
-    font-size: 28px;
-    line-height: 1.1;
+    position: relative;
+    background: var(--color-primary);
     color: var(--color-secondary);
-    margin-bottom: var(--space-2xs);
-  }
+    padding-top: clamp(64px, 9vh, 128px);
+    padding-bottom: clamp(24px, 3vh, 40px);
+    overflow: hidden;
+    isolation: isolate;
 
-  &__tagline {
-    font-size: 14px;
-    opacity: 0.7;
-    max-width: 280px;
-    line-height: 1.5;
-  }
-
-  &__columns {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: var(--space-l);
-
-    @media (max-width: 640px) {
-      grid-template-columns: 1fr 1fr;
+    // ── Decorative coquillage watermark behind the wordmark ──────────
+    &__watermark {
+        position: absolute;
+        right: -8%;
+        top: -6%;
+        width: clamp(360px, 40vw, 640px);
+        height: clamp(360px, 40vw, 640px);
+        color: var(--color-accent);
+        opacity: 0.05;
+        z-index: -1;
+        pointer-events: none;
     }
-  }
 
-  &__col {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2xs);
-  }
-
-  &__title {
-    font-family: var(--font-body);
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--color-accent);
-    text-transform: uppercase;
-    letter-spacing: 0.15em;
-    margin-bottom: var(--space-xs);
-  }
-
-  &__link {
-    color: var(--color-secondary);
-    text-decoration: none;
-    font-size: 14px;
-    line-height: 1.8;
-    opacity: 0.85;
-    transition: opacity 0.2s, transform 0.2s;
-
-    &:hover {
-      opacity: 1;
-      transform: translateX(2px);
-      color: var(--color-accent);
+    &__inner {
+        padding-inline: var(--edge-padding);
+        display: flex;
+        flex-direction: column;
+        gap: clamp(40px, 5vh, 72px);
     }
-  }
 
-  &__address {
-    font-size: 13px;
-    line-height: 1.6;
-    opacity: 0.7;
-    white-space: pre-line;
-    margin-top: var(--space-2xs);
-  }
+    // ── Wordmark block — big italic display name ─────────────────────
+    &__wordmark {
+        display: flex;
+        flex-direction: column;
+        gap: clamp(14px, 1.8vh, 24px);
+    }
 
-  &__bottom {
-    padding-top: var(--space-m);
-  }
+    &__eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: clamp(10px, 1vw, 18px);
+        font-family: var(--font-body);
+        font-size: clamp(11px, 0.85vw, 13px);
+        font-weight: 600;
+        letter-spacing: 0.24em;
+        text-transform: uppercase;
+        color: var(--color-accent);
+        margin: 0;
+    }
 
-  &__copyright {
-    font-size: 12px;
-    opacity: 0.55;
-    letter-spacing: 0.02em;
-  }
+    &__eyebrow-line {
+        width: clamp(32px, 3vw, 56px);
+        height: 1px;
+        background: currentColor;
+        opacity: 0.7;
+    }
+
+    &__name {
+        font-family: var(--font-display);
+        font-style: italic;
+        font-weight: 400;
+        font-size: clamp(56px, 10vw, 180px);
+        line-height: 0.92;
+        letter-spacing: -0.02em;
+        color: var(--color-secondary);
+        margin: 0;
+    }
+
+    &__tagline {
+        font-family: var(--font-body);
+        font-size: clamp(14px, 1.1vw, 16px);
+        line-height: 1.55;
+        color: rgba(232, 222, 197, 0.72);
+        max-width: 520px;
+        margin: 0;
+    }
+
+    // ── Ornamental divider (same style as pricing) ───────────────────
+    &__ornament {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: clamp(14px, 2vw, 32px);
+    }
+
+    &__ornament-line {
+        flex: 1;
+        height: 1px;
+        background: linear-gradient(
+            90deg,
+            transparent,
+            rgba(201, 164, 91, 0.4) 30%,
+            rgba(201, 164, 91, 0.4) 70%,
+            transparent
+        );
+    }
+
+    &__ornament-shell {
+        width: clamp(22px, 2vw, 32px);
+        height: clamp(22px, 2vw, 32px);
+        color: var(--color-accent);
+        flex-shrink: 0;
+    }
+
+    &__ornament-diamond {
+        color: var(--color-accent);
+        font-size: clamp(10px, 1vw, 14px);
+        opacity: 0.85;
+    }
+
+    // ── Columns ──────────────────────────────────────────────────────
+    &__columns {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: clamp(28px, 3vw, 56px);
+        align-items: start;
+
+        @media (max-width: $bp-desktop) {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: clamp(28px, 4vh, 48px) clamp(28px, 4vw, 56px);
+        }
+
+        @media (max-width: 560px) {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    &__col {
+        display: flex;
+        flex-direction: column;
+        gap: clamp(12px, 1.4vh, 18px);
+    }
+
+    &__col-title {
+        font-family: var(--font-body);
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.24em;
+        text-transform: uppercase;
+        color: var(--color-accent);
+        margin: 0 0 clamp(4px, 0.6vh, 8px);
+    }
+
+    &__list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: clamp(6px, 0.8vh, 10px);
+
+        &--inline {
+            flex-direction: row;
+            gap: clamp(10px, 1.2vw, 18px);
+            align-items: center;
+        }
+    }
+
+    &__link {
+        font-family: var(--font-display);
+        font-style: italic;
+        font-weight: 400;
+        font-size: clamp(16px, 1.2vw, 19px);
+        line-height: 1.35;
+        color: var(--color-secondary);
+        text-decoration: none;
+        transition: color 0.3s $ease-out-expo, transform 0.3s $ease-out-expo;
+        display: inline-block;
+
+        &:hover {
+            color: var(--color-accent);
+            transform: translateX(3px);
+        }
+
+        &.is-active {
+            color: var(--color-accent);
+        }
+    }
+
+    &__col--lang &__link {
+        font-family: var(--font-body);
+        font-style: normal;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.2em;
+        padding: 4px 0;
+        border-bottom: 1px solid transparent;
+
+        &:hover {
+            transform: none;
+            border-bottom-color: var(--color-accent);
+        }
+
+        &.is-active {
+            border-bottom-color: var(--color-accent);
+        }
+    }
+
+    &__address {
+        font-family: var(--font-body);
+        font-size: 13px;
+        line-height: 1.65;
+        color: rgba(232, 222, 197, 0.68);
+        white-space: pre-line;
+        margin: clamp(4px, 0.8vh, 10px) 0 0;
+    }
+
+    // ── Bottom strip ─────────────────────────────────────────────────
+    &__bottom {
+        margin-top: clamp(48px, 6vh, 96px);
+        padding-inline: var(--edge-padding);
+        padding-top: clamp(20px, 2.4vh, 32px);
+        border-top: 1px solid rgba(232, 222, 197, 0.14);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: clamp(16px, 2vw, 32px);
+        flex-wrap: wrap;
+    }
+
+    &__copyright,
+    &__credit {
+        font-family: var(--font-body);
+        font-size: 11px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: rgba(232, 222, 197, 0.5);
+        margin: 0;
+    }
+
+    &__credit {
+        font-style: normal;
+    }
+
+    &__credit-link {
+        color: var(--color-accent);
+        text-decoration: none;
+        letter-spacing: inherit;
+        transition: color 0.25s $ease-out-expo;
+
+        &:hover {
+            color: var(--color-secondary);
+        }
+    }
 }
