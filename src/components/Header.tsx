@@ -5,7 +5,6 @@ import { lenisService } from '../services/lenisService';
 import { extractBaseLang } from '../i18n/routes';
 import { pickLocale } from '../i18n/localized';
 import { urlFor } from '../services/sanityClient';
-import Coquillage from './Coquillage';
 import type { Link as CmsLink } from '../types/content';
 
 const Header = () => {
@@ -102,7 +101,6 @@ const Header = () => {
           onClick={(e) => handleAnchorClick(e, 'accueil')}
           aria-label={siteName}
         >
-          <Coquillage className="header__mark" />
           <span className="header__name">{siteName}</span>
         </a>
 

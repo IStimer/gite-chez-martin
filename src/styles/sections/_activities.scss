@@ -128,7 +128,7 @@
         position: relative;
         overflow: hidden;
         border: 1px solid var(--color-border);
-        background: var(--color-secondary);
+        background: var(--color-surface);
     }
 
     &__number {
@@ -143,7 +143,7 @@
         color: var(--color-secondary);
         mix-blend-mode: normal;
         padding: 4px 10px;
-        background: rgba(31, 58, 46, 0.6);
+        background: rgba(var(--rgb-primary), 0.6);
         backdrop-filter: blur(6px);
     }
 
@@ -262,7 +262,7 @@
         font-family: var(--font-body);
         font-size: clamp(13px, 1vw, 15px);
         line-height: 1.6;
-        color: rgba(26, 26, 26, 0.72);
+        color: rgba(var(--rgb-fg), 0.72);
         margin: 0;
     }
 
@@ -283,7 +283,7 @@
         font-size: 12px;
         letter-spacing: 0.08em;
         text-transform: uppercase;
-        color: rgba(26, 26, 26, 0.6);
+        color: rgba(var(--rgb-fg), 0.6);
 
         span + span {
             padding-left: clamp(12px, 1.4vw, 22px);

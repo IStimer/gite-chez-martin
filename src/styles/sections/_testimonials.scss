@@ -86,16 +86,16 @@
         background 0.45s,
         border-color 0.45s,
         box-shadow 0.45s;
-    background: var(--color-secondary);
-    border: 1px solid transparent;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
     overflow: hidden;
 
     // Expanded state — takes all remaining horizontal slack
     &--active {
         flex: 1 1 0;
-        background: #ffffff;
-        border-color: rgba(31, 58, 46, 0.1);
-        box-shadow: 0 18px 40px rgba(31, 58, 46, 0.08);
+        background: var(--color-surface);
+        border-color: rgba(var(--rgb-fg), 0.18);
+        box-shadow: 0 18px 40px rgba(var(--rgb-fg), 0.08);
     }
 
     &__btn {
@@ -259,8 +259,8 @@
 
     // ── Collapsed hover state ───────────────────────────────────────
     &:not(.testimonial--active):hover {
-        background: #ffffff;
-        border-color: rgba(31, 58, 46, 0.12);
+        background: var(--color-surface);
+        border-color: rgba(var(--rgb-fg), 0.18);
     }
 
     // ── Mobile / tablet: single stack, active expands vertically ────

@@ -1,17 +1,36 @@
 @use '../abstracts/variables' as *;
 
 :root {
-  // Theme palette (overridden by ContentProvider from siteSettings.theme)
-  --color-bg: #FBF8F1;
-  --color-fg: #1A1A1A;
-  --color-primary: #1F3A2E;
-  --color-secondary: #E8DEC5;
-  --color-accent: #C9A45B;
-  --color-primary-soft: #1F3A2EE6;
-  --color-primary-faded: #1F3A2E1A;
-  --color-secondary-muted: #E8DEC5CC;
-  --color-muted: #6b6b6b;
-  --color-border: rgba(31, 58, 46, 0.12);
+  // Theme palette — "Pilgrim / Compostelle poster" edition
+  // Primary   = bleu pèlerin
+  // Accent    = jaune doré chemin
+  // Bg        = beige coquille
+  // Surface   = sable pèlerin (encadrés, sections chaudes)
+  // Fg        = bleu nuit (texte principal)
+  // Muted     = gris carte (metadata, filets)
+  // bg          → warm cream paper — biased yellow so the gold accent
+  //               sings instead of looking dull against neutral grey
+  // secondary   → same paper tone (text on blue sections stays warm)
+  // surface     → pure white panel — lifts hébergements / galerie
+  // sand        → reserved for small accents (illustrations, badges)
+  --color-bg: #FBF8EC;
+  --color-fg: #22254A;
+  --color-primary: #3E42A8;
+  --color-secondary: #FBF8EC;
+  --color-surface: #FFFFFF;
+  --color-sand: #C9B38A;
+  --color-accent: #D6A21A;
+  --color-primary-soft: #3E42A8E6;
+  --color-primary-faded: #3E42A81A;
+  --color-secondary-muted: #FBF8ECCC;
+  --color-muted: #8F8F8F;
+  --color-border: rgba(34, 37, 74, 0.12);
+
+  // RGB channel tokens — enable rgba() composition in section files
+  --rgb-primary: 62, 66, 168;
+  --rgb-secondary: 251, 248, 236;
+  --rgb-accent: 214, 162, 26;
+  --rgb-fg: 34, 37, 74;
 
   // Typography
   --font-display: "Cormorant Garamond", "PP Editorial New", Georgia, serif;

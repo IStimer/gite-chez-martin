@@ -53,7 +53,7 @@
     }
 
     &__intro {
-        color: rgba(232, 222, 197, 0.82);
+        color: rgba(var(--rgb-secondary), 0.82);
         font-size: clamp(15px, 1.2vw, 18px);
         line-height: 1.65;
         max-width: 640px;
@@ -67,7 +67,7 @@
     &__panneau {
         width: 100%;
         max-width: 100%;
-        background: var(--color-secondary);
+        background: var(--color-surface);
         color: var(--color-primary);
         padding: clamp(8px, 0.9vw, 14px);
         border: 2px solid var(--color-primary);
@@ -129,9 +129,9 @@
         inset: 0;
         background: linear-gradient(
             180deg,
-            rgba(31, 58, 46, 0.12) 0%,
-            rgba(31, 58, 46, 0.35) 65%,
-            rgba(31, 58, 46, 0.5) 100%
+            rgba(var(--rgb-fg), 0.12) 0%,
+            rgba(var(--rgb-fg), 0.35) 65%,
+            rgba(var(--rgb-fg), 0.5) 100%
         );
         z-index: 1;
         pointer-events: none;
@@ -168,8 +168,7 @@
     // Content column — typography lives here; no border (the outer frame
     // handles the inner 1px filet on the whole plaque).
     &__content {
-        padding:
-            clamp(20px, 2.6vw, 36px) clamp(20px, 2.8vw, 40px)
+        padding: clamp(20px, 2.6vw, 36px) clamp(20px, 2.8vw, 40px)
             clamp(24px, 3vw, 44px);
         text-align: center;
         display: flex;
@@ -237,7 +236,7 @@
         // Extra = the ornament's vertical margin, so both periods end up
         // with the same visual top breathing room.
         & + & {
-            border-top: 1px solid rgba(31, 58, 46, 0.22);
+            border-top: 1px solid rgba(var(--rgb-fg), 0.22);
             padding-top: calc(
                 clamp(8px, 1.2vh, 16px) + clamp(10px, 1.4vh, 20px)
             );
@@ -298,7 +297,7 @@
         font-weight: 500;
         letter-spacing: 0.18em;
         text-transform: uppercase;
-        color: rgba(31, 58, 46, 0.6);
+        color: rgba(var(--rgb-fg), 0.6);
         margin-left: clamp(10px, 1.2vw, 18px);
         white-space: nowrap;
     }
@@ -307,7 +306,7 @@
         font-family: var(--font-display);
         font-style: italic;
         font-size: clamp(12px, 0.9vw, 14px);
-        color: rgba(31, 58, 46, 0.65);
+        color: rgba(var(--rgb-fg), 0.65);
         margin: clamp(2px, 0.3vw, 6px) 0 0;
     }
 
@@ -346,7 +345,7 @@
         font-style: italic;
         font-size: clamp(11px, 0.85vw, 13px);
         line-height: 1.45;
-        color: rgba(31, 58, 46, 0.72);
+        color: rgba(var(--rgb-fg), 0.72);
         text-align: center;
 
         p {

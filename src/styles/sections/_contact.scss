@@ -48,7 +48,7 @@
     }
 
     &__intro {
-        color: rgba(232, 222, 197, 0.82);
+        color: rgba(var(--rgb-secondary), 0.82);
         font-size: clamp(15px, 1.2vw, 18px);
         line-height: 1.65;
         max-width: 640px;
@@ -93,8 +93,8 @@
     &__map {
         position: relative;
         overflow: hidden;
-        border: 1px solid rgba(232, 222, 197, 0.18);
-        background: rgba(232, 222, 197, 0.06);
+        border: 1px solid rgba(var(--rgb-secondary), 0.18);
+        background: rgba(var(--rgb-secondary), 0.06);
         // Stretch to match the info column height on desktop. A min-height
         // ensures the map stays usable on mobile and when the info column
         // happens to be short.
@@ -112,7 +112,7 @@
             border: 0;
             display: block;
             filter: saturate(0.82) brightness(0.94);
-            background: #d7e4c8;
+            background: var(--color-surface);
         }
     }
 
@@ -139,7 +139,7 @@
 
     &__block {
         padding-block: clamp(14px, 1.6vh, 22px);
-        border-top: 1px solid rgba(232, 222, 197, 0.16);
+        border-top: 1px solid rgba(var(--rgb-secondary), 0.16);
 
         &:first-child {
             border-top: none;
@@ -216,7 +216,7 @@
         font-family: var(--font-body);
         font-size: clamp(13px, 1vw, 15px);
         line-height: 1.65;
-        color: rgba(232, 222, 197, 0.82);
+        color: rgba(var(--rgb-secondary), 0.82);
         margin: 0;
     }
 
@@ -234,7 +234,7 @@
         text-decoration: none;
         color: var(--color-secondary);
         padding: clamp(12px, 1.4vw, 16px) clamp(14px, 1.6vw, 20px);
-        border: 1px solid rgba(232, 222, 197, 0.24);
+        border: 1px solid rgba(var(--rgb-secondary), 0.24);
         background: transparent;
         transition:
             background 0.35s $ease-out-expo,
@@ -243,7 +243,7 @@
         width: 100%;
 
         &:hover {
-            background: rgba(232, 222, 197, 0.08);
+            background: rgba(var(--rgb-secondary), 0.08);
             border-color: var(--color-accent);
             transform: translateX(2px);
         }
@@ -307,7 +307,7 @@
         font-style: italic;
         font-size: clamp(12px, 0.9vw, 14px);
         line-height: 1.55;
-        color: rgba(232, 222, 197, 0.62);
+        color: rgba(var(--rgb-secondary), 0.62);
         max-width: 480px;
         margin: clamp(14px, 2vh, 24px) 0 0;
     }

@@ -71,7 +71,7 @@
         font-family: var(--font-body);
         font-size: clamp(14px, 1.1vw, 16px);
         line-height: 1.55;
-        color: rgba(232, 222, 197, 0.72);
+        color: rgba(var(--rgb-secondary), 0.72);
         max-width: 520px;
         margin: 0;
     }
@@ -90,8 +90,8 @@
         background: linear-gradient(
             90deg,
             transparent,
-            rgba(201, 164, 91, 0.4) 30%,
-            rgba(201, 164, 91, 0.4) 70%,
+            rgba(var(--rgb-accent), 0.4) 30%,
+            rgba(var(--rgb-accent), 0.4) 70%,
             transparent
         );
     }
@@ -201,7 +201,7 @@
         font-family: var(--font-body);
         font-size: 13px;
         line-height: 1.65;
-        color: rgba(232, 222, 197, 0.68);
+        color: rgba(var(--rgb-secondary), 0.68);
         white-space: pre-line;
         margin: clamp(4px, 0.8vh, 10px) 0 0;
     }
@@ -211,7 +211,7 @@
         margin-top: clamp(48px, 6vh, 96px);
         padding-inline: var(--edge-padding);
         padding-top: clamp(20px, 2.4vh, 32px);
-        border-top: 1px solid rgba(232, 222, 197, 0.14);
+        border-top: 1px solid rgba(var(--rgb-secondary), 0.14);
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -225,7 +225,7 @@
         font-size: 11px;
         letter-spacing: 0.16em;
         text-transform: uppercase;
-        color: rgba(232, 222, 197, 0.5);
+        color: rgba(var(--rgb-secondary), 0.5);
         margin: 0;
     }
 

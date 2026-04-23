@@ -104,18 +104,21 @@
   &__cta {
     background: var(--color-primary);
     color: #ffffff;
-    padding: 8px 16px;
+    padding: 10px;
     font-size: 10.5px;
     font-weight: 600;
     text-decoration: none;
     text-transform: uppercase;
     letter-spacing: 0.16em;
-    transition: transform 0.25s $ease-out-expo, background 0.25s $ease-out-expo;
+    // Trailing letter-spacing adds 0.16em after the last char, which
+    // reads as extra right padding. text-indent eats an equivalent
+    // space on the left so the text sits optically centered.
+    text-indent: 0.16em;
+    transition: background 0.25s $ease-out-expo;
     white-space: nowrap;
 
     &:hover {
       background: var(--color-fg);
-      transform: translateY(-1px);
     }
     @media (max-width: $bp-mobile) { display: none; }
   }
