@@ -11,6 +11,8 @@ import { extractBaseLang } from '../../i18n/routes';
 import { pickLocale } from '../../i18n/localized';
 import { buildImageUrl, getLqip, getAltText } from '../../services/imageUrl';
 import Coquillage from '../Coquillage';
+import { revealTitle, revealAllInside, revertReveals } from '../../utils/reveals';
+import type { SplitText } from 'gsap/SplitText';
 
 if (typeof window !== 'undefined') gsap.registerPlugin(ScrollTrigger);
 
@@ -183,7 +185,14 @@ const AccommodationsSection = ({ data }: { data: Data }) => {
   useLayoutEffect(() => {
     const el = rootRef.current;
     if (!el) return;
+    const splits: SplitText[] = [];
     const ctx = gsap.context(() => {
+      const t = revealTitle(el.querySelector<HTMLElement>('.spaces__title'), {
+        trigger: el,
+      });
+      if (t) splits.push(t.split);
+      splits.push(...revealAllInside(el));
+
       gsap.from(el.querySelectorAll('.spaces__head [data-reveal]'), {
         opacity: 0,
         y: 32,
@@ -205,7 +214,10 @@ const AccommodationsSection = ({ data }: { data: Data }) => {
         },
       });
     }, el);
-    return () => ctx.revert();
+    return () => {
+      revertReveals(splits);
+      ctx.revert();
+    };
   }, []);
 
   const eyebrow = pickLocale(data.eyebrow ?? undefined, lang);
@@ -230,11 +242,11 @@ const AccommodationsSection = ({ data }: { data: Data }) => {
               <span>{eyebrow}</span>
             </p>
           )}
-          <h2 className="spaces__title" data-reveal>
+          <h2 className="spaces__title">
             {title}
           </h2>
           {intro && (
-            <p className="spaces__intro" data-reveal>
+            <p className="spaces__intro">
               {intro}
             </p>
           )}

@@ -7,6 +7,8 @@ import { extractBaseLang } from '../../i18n/routes';
 import { pickLocale } from '../../i18n/localized';
 import { useSiteSettings } from '../../providers/ContentProvider';
 import Coquillage from '../Coquillage';
+import { revealTitle, revealAllInside, revertReveals } from '../../utils/reveals';
+import type { SplitText } from 'gsap/SplitText';
 
 if (typeof window !== 'undefined') gsap.registerPlugin(ScrollTrigger);
 
@@ -68,7 +70,13 @@ const ContactSection = ({ data }: { data: Data }) => {
   useLayoutEffect(() => {
     const el = rootRef.current;
     if (!el) return;
+    const splits: SplitText[] = [];
     const ctx = gsap.context(() => {
+      const t = revealTitle(el.querySelector<HTMLElement>('.contact__title'), {
+        trigger: el,
+      });
+      if (t) splits.push(t.split);
+      splits.push(...revealAllInside(el));
       gsap.from(el.querySelectorAll('[data-reveal]'), {
         opacity: 0,
         y: 28,
@@ -98,7 +106,10 @@ const ContactSection = ({ data }: { data: Data }) => {
         scrollTrigger: { trigger: el, start: 'top 70%', once: true },
       });
     }, el);
-    return () => ctx.revert();
+    return () => {
+      revertReveals(splits);
+      ctx.revert();
+    };
   }, []);
 
   return (
@@ -120,8 +131,8 @@ const ContactSection = ({ data }: { data: Data }) => {
               <span>{eyebrow}</span>
             </p>
           )}
-          <h2 className="contact__title" data-reveal>{title}</h2>
-          {intro && <p className="contact__intro" data-reveal>{intro}</p>}
+          <h2 className="contact__title">{title}</h2>
+          {intro && <p className="contact__intro">{intro}</p>}
         </header>
 
         <div className="contact__grid">
@@ -221,7 +232,7 @@ const ContactSection = ({ data }: { data: Data }) => {
             )}
 
             {notes && (
-              <p className="contact__notes" data-reveal>
+              <p className="contact__notes">
                 {notes}
               </p>
             )}

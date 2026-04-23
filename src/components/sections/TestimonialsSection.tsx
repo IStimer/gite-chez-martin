@@ -12,6 +12,8 @@ import { buildImageUrl } from '../../services/imageUrl';
 import { useSiteSettings } from '../../providers/ContentProvider';
 import { fetchGoogleReviews } from '../../services/googleReviewsService';
 import Coquillage from '../Coquillage';
+import { revealTitle, revealAllInside, revertReveals } from '../../utils/reveals';
+import type { SplitText } from 'gsap/SplitText';
 
 if (typeof window !== 'undefined') gsap.registerPlugin(ScrollTrigger);
 
@@ -151,7 +153,13 @@ const TestimonialsSection = ({ data }: { data: Data }) => {
   useLayoutEffect(() => {
     const el = rootRef.current;
     if (!el) return;
+    const splits: SplitText[] = [];
     const ctx = gsap.context(() => {
+      const t = revealTitle(el.querySelector<HTMLElement>('.testimonials__title'), {
+        trigger: el,
+      });
+      if (t) splits.push(t.split);
+      splits.push(...revealAllInside(el));
       gsap.from(el.querySelectorAll('.testimonials__head [data-reveal]'), {
         opacity: 0,
         y: 32,
@@ -169,7 +177,10 @@ const TestimonialsSection = ({ data }: { data: Data }) => {
         scrollTrigger: { trigger: el, start: 'top 70%', once: true },
       });
     }, el);
-    return () => ctx.revert();
+    return () => {
+      revertReveals(splits);
+      ctx.revert();
+    };
   }, []);
 
   const eyebrow = pickLocale(data.eyebrow ?? undefined, lang);
@@ -200,17 +211,17 @@ const TestimonialsSection = ({ data }: { data: Data }) => {
               <span>{eyebrow}</span>
             </p>
           )}
-          <h2 className="testimonials__title" data-reveal>
+          <h2 className="testimonials__title">
             {title}
           </h2>
           {intro && (
-            <p className="testimonials__intro" data-reveal>
+            <p className="testimonials__intro">
               {intro}
             </p>
           )}
         </header>
 
-        <ol className="testimonials__row" role="list">
+        <ol className="testimonials__row" role="list" data-no-reveal>
           {items.map((item, i) => {
             const isActive = i === active;
             const body = pickLocale(item.body, lang);

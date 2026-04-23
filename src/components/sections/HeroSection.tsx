@@ -1,4 +1,5 @@
 import { useLayoutEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -7,7 +8,10 @@ import { extractBaseLang } from '../../i18n/routes';
 import { pickLocale } from '../../i18n/localized';
 import { buildImageUrl, getLqip, getAltText } from '../../services/imageUrl';
 import { lenisService } from '../../services/lenisService';
+import { useSiteSettings } from '../../providers/ContentProvider';
 import Coquillage from '../Coquillage';
+import { revealTitle, revealLines, revertReveals } from '../../utils/reveals';
+import type { SplitText } from 'gsap/SplitText';
 
 if (typeof window !== 'undefined') gsap.registerPlugin(ScrollTrigger);
 
@@ -44,11 +48,22 @@ const DownArrow = () => (
 const HeroSection = ({ data }: { data: HeroData }) => {
   const { i18n } = useTranslation();
   const lang = extractBaseLang(i18n.language);
+  const site = useSiteSettings();
   const rootRef = useRef<HTMLDivElement | null>(null);
   const bgRef = useRef<HTMLDivElement | null>(null);
+  const loaderRef = useRef<HTMLDivElement | null>(null);
+  const loaderStageRef = useRef<HTMLDivElement | null>(null);
+  const loaderTextRef = useRef<HTMLParagraphElement | null>(null);
+  const loaderFrameRef = useRef<HTMLDivElement | null>(null);
+  const loaderImageRef = useRef<HTMLImageElement | null>(null);
 
   const id = data.sectionId || 'accueil';
   const titleRaw = pickLocale(data.title, lang) || '';
+  const brand = pickLocale(site?.siteName, lang) || 'Gîte chez Martin';
+  const welcomeLine =
+    lang === 'fr'
+      ? `Bienvenue au ${brand}. Nous vous accueillons sur le chemin de Saint-Jacques pour un séjour paisible, au rythme de la nature.`
+      : `Welcome to ${brand}. We welcome you on the Saint-James Way for a peaceful stay, at nature's own pace.`;
   const titleLines = titleRaw.split(/\r?\n/).filter(Boolean);
   const subtitle = pickLocale(data.subtitle, lang);
   const bgUrl = buildImageUrl(data.backgroundImage, { width: 2400, format: 'webp', quality: 82 });
@@ -69,18 +84,55 @@ const HeroSection = ({ data }: { data: HeroData }) => {
   useLayoutEffect(() => {
     const el = rootRef.current;
     if (!el) return;
-    const ctx = gsap.context(() => {
-      const tl = gsap.timeline({ delay: 0.1 });
-      tl.from('.hero__card-tl', { opacity: 0, y: 20, duration: 0.9, ease: 'expo.out' })
-        .from('.hero__cluster-tr > *', { opacity: 0, y: 20, duration: 0.8, stagger: 0.08, ease: 'expo.out' }, '-=0.6')
-        .from('.hero__ornament', { opacity: 0, x: -40, duration: 1.0, ease: 'expo.out' }, '-=0.6')
-        .from('.hero__title-line', { opacity: 0, y: 60, duration: 1.2, stagger: 0.1, ease: 'expo.out' }, '-=0.7')
-        .from('.hero__scroll-btn', { opacity: 0, y: 20, duration: 0.9, ease: 'expo.out' }, '-=0.5');
 
-      // Parallax background — damped scrub to avoid compounding with Lenis
+    // Always start at top so the loader transition plays from zero —
+    // even if the browser preserved a scroll position across reload.
+    window.scrollTo(0, 0);
+    document.body.style.overflow = 'hidden';
+
+    const splits: SplitText[] = [];
+    const ctx = gsap.context(() => {
+      // Hide synchronously (before paint) everything that will reveal
+      // *after* the loader exits — prevents the flash of natural
+      // content that would otherwise appear.
+      gsap.set(
+        '.hero__title-line, .hero__ornament, .hero__scroll-btn, .hero__overlay',
+        { autoAlpha: 0 },
+      );
+      gsap.set('.hero__ornament', { x: -40 });
+      // Clip-path reveal targets. The header bar is revealed as a
+      // single sweep (the white chrome slides in with its contents);
+      // the top-cluster cards each get their own sweep.
+      // `.header` lives OUTSIDE the hero-block, so gsap.context's
+      // scoped selectors can't find it — we resolve it via
+      // `document.querySelector` and pass the element directly.
+      const headerEl = document.querySelector('.header') as HTMLElement | null;
+      gsap.set(
+        [headerEl, '.hero__card-tl', '.hero__cluster-tr > *'].filter(Boolean),
+        { '--clip-r': '100%' },
+      );
+      // Hero bg hidden until the loader hands over. No scale set here:
+      // matching the loader image at scale 1 eliminates the "dezoom"
+      // apparent motion that came from the post-handoff scale reset.
+      gsap.set('.hero__bg', { autoAlpha: 0 });
+
+      // Phase 1: reveal the welcome paragraph line-by-line with the
+      // same mask pattern used across the app.
+      const textReveal = revealLines(loaderTextRef.current, {
+        immediate: true,
+        duration: 0.75,
+        stagger: 0.1,
+      });
+      if (textReveal) splits.push(textReveal.split);
+
+      // Parallax bg on scroll — bg matches the hero's bounds (no
+      // oversizing), so the parallax is done via transform scale+yPercent
+      // which is self-contained. Starts at rest (scale 1) which is also
+      // the loader image's final state → seamless handoff.
       if (bgRef.current) {
         gsap.to(bgRef.current, {
-          yPercent: 12,
+          scale: 1.1,
+          yPercent: -6,
           ease: 'none',
           scrollTrigger: {
             trigger: el,
@@ -90,8 +142,167 @@ const HeroSection = ({ data }: { data: HeroData }) => {
           },
         });
       }
+
+      // Wait for the loader image (same src as hero bg) — it's loading
+      // behind the text during the intro phrase so the sweep is crisp.
+      const loaderImg = loaderImageRef.current;
+      const imageLoaded = new Promise<void>((resolve) => {
+        if (!loaderImg || loaderImg.complete) {
+          resolve();
+          return;
+        }
+        loaderImg.addEventListener('load', () => resolve(), { once: true });
+        loaderImg.addEventListener('error', () => resolve(), { once: true });
+      });
+
+      // Minimum display time for the intro phrase — so the reader has
+      // time to breathe the sentence, even on a warm cache.
+      const minTime = new Promise<void>((resolve) =>
+        window.setTimeout(resolve, 2200),
+      );
+
+      // Safety ceiling on a bad network.
+      const timeout = new Promise<void>((resolve) =>
+        window.setTimeout(resolve, 6000),
+      );
+
+      Promise.race([
+        Promise.all([imageLoaded, minTime]).then(() => undefined),
+        timeout,
+      ]).then(() => {
+        const tl = gsap.timeline({
+          onComplete: () => {
+            document.body.style.overflow = '';
+          },
+        });
+
+        // ── Phase 2: image sweeps in L→R covering the text in place
+        // Start value forced to 100% so the reveal always begins with
+        // the image fully hidden (no "already 20% visible" artefact).
+        // power3.inOut: acceleration + deceleration, less jerky than
+        // the extreme cubic-bezier(0.87, 0, 0.13, 1) that stalled at
+        // both ends. ──────────────────────────────────────────────────
+        tl.fromTo(
+          loaderImageRef.current,
+          { '--clip-r': '100%' },
+          {
+            '--clip-r': '0%',
+            duration: 0.95,
+            ease: 'power3.inOut',
+          },
+        )
+          // Small beat with the miniature settled in the text zone.
+          .to({}, { duration: 0.5 })
+          // ── Phase 3: frame breaks out of the stage and grows to
+          // match .hero__bg's exact rect (including its -8% 0 inset,
+          // which is what "the parallax zoom state" looks like at
+          // scroll 0). End state = pixel-identical to .hero__bg
+          // natural, so the handover is invisible. ─────────────────
+          .call(() => {
+            const frame = loaderFrameRef.current;
+            if (!frame) return;
+            const rect = frame.getBoundingClientRect();
+            gsap.set(frame, {
+              position: 'fixed',
+              top: rect.top,
+              left: rect.left,
+              width: rect.width,
+              height: rect.height,
+              // Neutralise the CSS 100%/100% width/height so our
+              // pixel values win from now on.
+              right: 'auto',
+              bottom: 'auto',
+            });
+          })
+          .to(loaderFrameRef.current, {
+            // End state matches .hero exactly (100vw × 95vh, top 0) —
+            // no oversizing, no overflow during the expansion. Hero__bg
+            // now shares the same bounds, so the handoff is pixel
+            // identical. Parallax on scroll takes over from scale 1.
+            top: () =>
+              bgRef.current?.getBoundingClientRect().top ?? 0,
+            left: () =>
+              bgRef.current?.getBoundingClientRect().left ?? 0,
+            width: () =>
+              bgRef.current?.getBoundingClientRect().width ??
+              window.innerWidth,
+            height: () =>
+              bgRef.current?.getBoundingClientRect().height ??
+              window.innerHeight * 0.95,
+            duration: 1.3,
+            ease: 'power3.inOut',
+          })
+          // Hand off to the real hero bg (same rect = no visual jump)
+          // then drop the loader.
+          .set('.hero__bg', { autoAlpha: 1 })
+          .set(loaderRef.current, { display: 'none' })
+          // ── Phase 4: overlay + hero content cascade ────────────────
+          .to(
+            '.hero__overlay',
+            { autoAlpha: 1, duration: 0.9, ease: 'power2.out' },
+          )
+          .add(() => {
+            el.querySelectorAll<HTMLElement>('.hero__title-line').forEach(
+              (line, i) => {
+                gsap.set(line, { autoAlpha: 1 });
+                const r = revealTitle(line, {
+                  immediate: true,
+                  delay: i * 0.12,
+                });
+                if (r) splits.push(r.split);
+              },
+            );
+          }, '<')
+          // Header reveal — single L→R clip-path sweep on the whole
+          // bar so the white chrome slides in with its contents in one
+          // smooth motion (no staggered child animations). Uses the
+          // direct element node since .header is outside this gsap
+          // context's scope.
+          .to(
+            headerEl,
+            {
+              '--clip-r': '0%',
+              duration: 0.95,
+              ease: 'power3.inOut',
+            },
+            '<',
+          )
+          .to(
+            '.hero__card-tl',
+            {
+              '--clip-r': '0%',
+              duration: 0.9,
+              ease: 'power3.inOut',
+            },
+            '<0.1',
+          )
+          .to(
+            '.hero__cluster-tr > *',
+            {
+              '--clip-r': '0%',
+              duration: 0.85,
+              stagger: 0.08,
+              ease: 'power3.inOut',
+            },
+            '<',
+          )
+          .to(
+            '.hero__ornament',
+            { autoAlpha: 1, x: 0, duration: 1.0, ease: 'expo.out' },
+            '<',
+          )
+          .to(
+            '.hero__scroll-btn',
+            { autoAlpha: 1, y: 0, duration: 0.9, ease: 'expo.out' },
+            '-=0.4',
+          );
+      });
     }, el);
-    return () => ctx.revert();
+    return () => {
+      document.body.style.overflow = '';
+      revertReveals(splits);
+      ctx.revert();
+    };
   }, []);
 
   return (
@@ -194,6 +405,35 @@ const HeroSection = ({ data }: { data: HeroData }) => {
           <DownArrow />
         </span>
       </button>
+
+      {/* Loader portaled into body — escapes the hero's stacking
+          context so it always sits above the fixed header. */}
+      {typeof document !== 'undefined' &&
+        createPortal(
+          <div className="hero__loader" aria-hidden="true" ref={loaderRef}>
+            <div className="hero__loader-stage" ref={loaderStageRef}>
+              <p className="hero__loader-text" ref={loaderTextRef}>
+                {welcomeLine}
+              </p>
+              {/* Frame overlays the text zone exactly — its bounds are
+                  the stage's bounds, which are driven by the text
+                  paragraph sizing. The image inside is clipped
+                  initially and sweeps L→R during phase 2. */}
+              <div className="hero__loader-frame" ref={loaderFrameRef}>
+                {bgUrl && (
+                  <img
+                    src={bgUrl}
+                    alt=""
+                    className="hero__loader-image"
+                    ref={loaderImageRef}
+                    decoding="async"
+                  />
+                )}
+              </div>
+            </div>
+          </div>,
+          document.body,
+        )}
     </div>
   );
 };

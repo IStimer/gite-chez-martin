@@ -7,6 +7,8 @@ import { extractBaseLang } from '../../i18n/routes';
 import { pickLocale } from '../../i18n/localized';
 import { buildImageUrl, getLqip, getAltText } from '../../services/imageUrl';
 import SectionHeader from './SectionHeader';
+import { revealAllInside, revertReveals } from '../../utils/reveals';
+import type { SplitText } from 'gsap/SplitText';
 
 if (typeof window !== 'undefined') gsap.registerPlugin(ScrollTrigger);
 
@@ -32,7 +34,9 @@ const LocationSection = ({ data }: { data: Data }) => {
   useLayoutEffect(() => {
     const el = rootRef.current;
     if (!el) return;
+    const splits: SplitText[] = [];
     const ctx = gsap.context(() => {
+      splits.push(...revealAllInside(el));
       gsap.from(el.querySelectorAll('[data-reveal]'), {
         opacity: 0,
         y: 40,
@@ -42,7 +46,10 @@ const LocationSection = ({ data }: { data: Data }) => {
         scrollTrigger: { trigger: el, start: 'top 78%', once: true },
       });
     }, el);
-    return () => ctx.revert();
+    return () => {
+      revertReveals(splits);
+      ctx.revert();
+    };
   }, []);
 
   return (

@@ -11,6 +11,11 @@
   height: clamp(52px, 6vh, 68px);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
 
+  // Single L→R clip-path sweep on the whole bar — revealed by the
+  // hero loader on mount. Default 0 = fully visible.
+  --clip-r: 0%;
+  clip-path: inset(0 var(--clip-r) 0 0);
+
   @media (max-width: $bp-mobile) {
     top: 12px;
     height: 52px;

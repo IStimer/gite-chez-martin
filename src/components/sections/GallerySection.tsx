@@ -7,6 +7,8 @@ import { extractBaseLang } from '../../i18n/routes';
 import { pickLocale } from '../../i18n/localized';
 import { buildImageUrl, getAltText } from '../../services/imageUrl';
 import Coquillage from '../Coquillage';
+import { revealTitle, revealAllInside, revertReveals } from '../../utils/reveals';
+import type { SplitText } from 'gsap/SplitText';
 
 if (typeof window !== 'undefined') gsap.registerPlugin(ScrollTrigger);
 
@@ -103,7 +105,13 @@ const GallerySection = ({ data }: { data: Data }) => {
   useLayoutEffect(() => {
     const el = rootRef.current;
     if (!el) return;
+    const splits: SplitText[] = [];
     const ctx = gsap.context(() => {
+      const t = revealTitle(el.querySelector<HTMLElement>('.gallery__title'), {
+        trigger: el,
+      });
+      if (t) splits.push(t.split);
+      splits.push(...revealAllInside(el));
       gsap.from(el.querySelectorAll('.gallery__head [data-reveal]'), {
         opacity: 0,
         y: 32,
@@ -121,7 +129,10 @@ const GallerySection = ({ data }: { data: Data }) => {
         scrollTrigger: { trigger: el, start: 'top 70%', once: true },
       });
     }, el);
-    return () => ctx.revert();
+    return () => {
+      revertReveals(splits);
+      ctx.revert();
+    };
   }, []);
 
   // Grid overlay stagger on open
@@ -184,17 +195,17 @@ const GallerySection = ({ data }: { data: Data }) => {
               <span>{eyebrow}</span>
             </p>
           )}
-          <h2 className="gallery__title" data-reveal>
+          <h2 className="gallery__title">
             {title}
           </h2>
           {intro && (
-            <p className="gallery__intro" data-reveal>
+            <p className="gallery__intro">
               {intro}
             </p>
           )}
         </header>
 
-        <div className="gallery__viewer" data-viewer-reveal>
+        <div className="gallery__viewer" data-viewer-reveal data-no-reveal>
           {/* Top: main stage */}
           <div
             className="gallery__stage"

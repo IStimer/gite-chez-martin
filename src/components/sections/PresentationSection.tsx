@@ -8,6 +8,8 @@ import { pickLocale } from '../../i18n/localized';
 import LocalizedPortableText from '../LocalizedPortableText';
 import Coquillage from '../Coquillage';
 import { buildImageUrl, getLqip, getAltText } from '../../services/imageUrl';
+import { revealTitle, revealAllInside, revertReveals } from '../../utils/reveals';
+import type { SplitText } from 'gsap/SplitText';
 
 if (typeof window !== 'undefined') gsap.registerPlugin(ScrollTrigger);
 
@@ -27,7 +29,19 @@ const PresentationSection = ({ data }: { data: Data }) => {
   useLayoutEffect(() => {
     const el = rootRef.current;
     if (!el) return;
+    const splits: SplitText[] = [];
     const ctx = gsap.context(() => {
+      // Masked word reveal on each title line
+      el.querySelectorAll<HTMLElement>('.presentation__title-line').forEach(
+        (line, i) => {
+          const r = revealTitle(line, { trigger: el, delay: i * 0.12 });
+          if (r) splits.push(r.split);
+        },
+      );
+
+      // All h3 → title-style, all p/li → line reveal
+      splits.push(...revealAllInside(el));
+
       gsap.from(el.querySelectorAll('[data-reveal]'), {
         opacity: 0,
         y: 40,
@@ -64,7 +78,10 @@ const PresentationSection = ({ data }: { data: Data }) => {
         }
       });
     }, el);
-    return () => ctx.revert();
+    return () => {
+      revertReveals(splits);
+      ctx.revert();
+    };
   }, []);
 
   return (
@@ -86,7 +103,7 @@ const PresentationSection = ({ data }: { data: Data }) => {
               <span>{eyebrow}</span>
             </p>
           )}
-          <h2 className="presentation__title" data-reveal>
+          <h2 className="presentation__title">
             {titleLines.map((line, i) => (
               <span key={i} className="presentation__title-line">
                 {line}
@@ -97,10 +114,7 @@ const PresentationSection = ({ data }: { data: Data }) => {
 
         {/* Row 2+3 — 2×2 grid: text | main // wide | secondary */}
         <div className="presentation__grid">
-          <div
-            className="presentation__cell presentation__cell--text"
-            data-reveal
-          >
+          <div className="presentation__cell presentation__cell--text">
             <LocalizedPortableText
               value={data.body}
               className="presentation__body"

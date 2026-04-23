@@ -6,15 +6,19 @@ type Source = ImageWithAlt | SanityImage | string | null | undefined;
 function resolveAssetSource(src: Source): { url?: string; lqip?: string | null } {
   if (!src) return {};
   if (typeof src === 'string') return { url: src };
-  // imageWithAlt
-  if ((src as ImageWithAlt)._type === 'imageWithAlt') {
-    const inner = (src as ImageWithAlt).image;
+  // imageWithAlt — detected via the nested `image.asset` shape rather
+  // than the `_type` field, because Sanity doesn't always persist the
+  // `_type` on object-type fields (we've seen documents with a valid
+  // asset but `_type: null`, which would fall through to the "bare
+  // SanityImage" branch and lose the URL).
+  const asImageWithAlt = src as ImageWithAlt;
+  if (asImageWithAlt.image?.asset) {
     return {
-      url: inner?.asset?.url,
-      lqip: inner?.asset?.lqip ?? null,
+      url: asImageWithAlt.image.asset.url,
+      lqip: asImageWithAlt.image.asset.lqip ?? null,
     };
   }
-  // bare image
+  // bare SanityImage
   const img = src as SanityImage;
   return {
     url: img?.asset?.url,
