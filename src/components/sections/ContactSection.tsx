@@ -126,8 +126,7 @@ const ContactSection = ({ data }: { data: Data }) => {
               <Coquillage
                 className="contact__eyebrow-mark"
                 variant="rays"
-                rotate={90}
-              />
+                />
               <span>{eyebrow}</span>
             </p>
           )}

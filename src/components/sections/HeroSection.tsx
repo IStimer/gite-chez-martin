@@ -66,7 +66,14 @@ const HeroSection = ({ data }: { data: HeroData }) => {
       : `Welcome to ${brand}. We welcome you on the Saint-James Way for a peaceful stay, at nature's own pace.`;
   const titleLines = titleRaw.split(/\r?\n/).filter(Boolean);
   const subtitle = pickLocale(data.subtitle, lang);
-  const bgUrl = buildImageUrl(data.backgroundImage, { width: 2400, format: 'webp', quality: 82 });
+  // Native asset is 1584w — request just above it so the browser
+  // does the final 100vw stretch from a near-1:1 source. Asking
+  // Sanity for higher widths just upscales and adds blur.
+  const bgUrl = buildImageUrl(data.backgroundImage, {
+    width: 1700,
+    format: 'webp',
+    quality: 92,
+  });
   const lqip = getLqip(data.backgroundImage);
   const alt = getAltText(data.backgroundImage, titleRaw);
 
@@ -115,6 +122,15 @@ const HeroSection = ({ data }: { data: HeroData }) => {
       // matching the loader image at scale 1 eliminates the "dezoom"
       // apparent motion that came from the post-handoff scale reset.
       gsap.set('.hero__bg', { autoAlpha: 0 });
+
+      // Match the loader miniature's aspect-ratio to the final
+      // hero__bg rect — so when phase 3 transform-scales the frame
+      // up to full size, the image's object-fit:cover crop doesn't
+      // change. Same crop throughout = no stretch glitch.
+      const endRect = bgRef.current?.getBoundingClientRect();
+      if (endRect && loaderStageRef.current) {
+        loaderStageRef.current.style.aspectRatio = `${endRect.width} / ${endRect.height}`;
+      }
 
       // Phase 1: reveal the welcome paragraph line-by-line with the
       // same mask pattern used across the app.
@@ -193,42 +209,38 @@ const HeroSection = ({ data }: { data: HeroData }) => {
         )
           // Small beat with the miniature settled in the text zone.
           .to({}, { duration: 0.5 })
-          // ── Phase 3: frame breaks out of the stage and grows to
-          // match .hero__bg's exact rect (including its -8% 0 inset,
-          // which is what "the parallax zoom state" looks like at
-          // scroll 0). End state = pixel-identical to .hero__bg
-          // natural, so the handover is invisible. ─────────────────
+          // ── Phase 3: FLIP-style expansion using transform only.
+          // Animating width/height/top/left triggers layout every
+          // frame AND makes object-fit: cover re-crop continuously
+          // (→ visible vibration). We instead pin the frame at its
+          // FINAL rect and apply an inverse transform so it visually
+          // sits at the miniature position — then tween the transform
+          // to identity. No reflow, no re-crop, buttery zoom. ──────
           .call(() => {
             const frame = loaderFrameRef.current;
-            if (!frame) return;
-            const rect = frame.getBoundingClientRect();
+            const end = bgRef.current?.getBoundingClientRect();
+            if (!frame || !end) return;
+            const start = frame.getBoundingClientRect();
             gsap.set(frame, {
               position: 'fixed',
-              top: rect.top,
-              left: rect.left,
-              width: rect.width,
-              height: rect.height,
-              // Neutralise the CSS 100%/100% width/height so our
-              // pixel values win from now on.
+              top: end.top,
+              left: end.left,
+              width: end.width,
+              height: end.height,
               right: 'auto',
               bottom: 'auto',
+              transformOrigin: '0 0',
+              x: start.left - end.left,
+              y: start.top - end.top,
+              scaleX: start.width / end.width,
+              scaleY: start.height / end.height,
             });
           })
           .to(loaderFrameRef.current, {
-            // End state matches .hero exactly (100vw × 95vh, top 0) —
-            // no oversizing, no overflow during the expansion. Hero__bg
-            // now shares the same bounds, so the handoff is pixel
-            // identical. Parallax on scroll takes over from scale 1.
-            top: () =>
-              bgRef.current?.getBoundingClientRect().top ?? 0,
-            left: () =>
-              bgRef.current?.getBoundingClientRect().left ?? 0,
-            width: () =>
-              bgRef.current?.getBoundingClientRect().width ??
-              window.innerWidth,
-            height: () =>
-              bgRef.current?.getBoundingClientRect().height ??
-              window.innerHeight * 0.95,
+            x: 0,
+            y: 0,
+            scaleX: 1,
+            scaleY: 1,
             duration: 1.3,
             ease: 'power3.inOut',
           })

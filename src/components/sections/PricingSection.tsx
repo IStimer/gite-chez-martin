@@ -160,8 +160,7 @@ const PricingSection = ({ data }: { data: Data }) => {
               <Coquillage
                 className="pricing__eyebrow-mark"
                 variant="rays"
-                rotate={90}
-              />
+                />
               <span>{eyebrow}</span>
             </p>
           )}

@@ -98,8 +98,7 @@ const PresentationSection = ({ data }: { data: Data }) => {
               <Coquillage
                 className="presentation__eyebrow-mark"
                 variant="rays"
-                rotate={90}
-              />
+                />
               <span>{eyebrow}</span>
             </p>
           )}

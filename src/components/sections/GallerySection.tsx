@@ -190,8 +190,7 @@ const GallerySection = ({ data }: { data: Data }) => {
               <Coquillage
                 className="gallery__eyebrow-mark"
                 variant="rays"
-                rotate={90}
-              />
+                />
               <span>{eyebrow}</span>
             </p>
           )}

@@ -39,7 +39,18 @@ const Coquillage = ({
   >
     {title && <title>{title}</title>}
     <g
-      transform={rotate ? `rotate(${rotate} 32 32)` : undefined}
+      transform={
+        // The `rays` variant lives in SVG y=20-54 (visual centre y=37
+        // vs box centre y=32) — shift it up 5 units BEFORE rotating
+        // so the optical centre lands on the box centre regardless of
+        // the rotation angle.
+        [
+          variant === 'rays' ? 'translate(0 -5)' : '',
+          rotate ? `rotate(${rotate} 32 32)` : '',
+        ]
+          .filter(Boolean)
+          .join(' ') || undefined
+      }
       fill="none"
       stroke="currentColor"
       strokeWidth={1.4}

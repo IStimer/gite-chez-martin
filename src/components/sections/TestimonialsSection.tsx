@@ -206,8 +206,7 @@ const TestimonialsSection = ({ data }: { data: Data }) => {
               <Coquillage
                 className="testimonials__eyebrow-mark"
                 variant="rays"
-                rotate={90}
-              />
+                />
               <span>{eyebrow}</span>
             </p>
           )}
