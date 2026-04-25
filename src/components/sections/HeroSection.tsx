@@ -60,10 +60,18 @@ const HeroSection = ({ data }: { data: HeroData }) => {
   const id = data.sectionId || 'accueil';
   const titleRaw = pickLocale(data.title, lang) || '';
   const brand = pickLocale(site?.siteName, lang) || 'Gîte chez Martin';
-  const welcomeLine =
+  const welcomeLines =
     lang === 'fr'
-      ? `Bienvenue au ${brand}. Nous vous accueillons sur le chemin de Saint-Jacques pour un séjour paisible, au rythme de la nature.`
-      : `Welcome to ${brand}. We welcome you on the Saint-James Way for a peaceful stay, at nature's own pace.`;
+      ? [
+          `Bienvenue au ${brand}.`,
+          'Un havre sur le chemin de Compostelle.',
+          'Prenez le temps, installez-vous.',
+        ]
+      : [
+          `Welcome to ${brand}.`,
+          'A haven on the Compostela Way.',
+          'Take your time, settle in.',
+        ];
   const titleLines = titleRaw.split(/\r?\n/).filter(Boolean);
   const subtitle = pickLocale(data.subtitle, lang);
   // Native asset is 1584w — request just above it so the browser
@@ -92,10 +100,54 @@ const HeroSection = ({ data }: { data: HeroData }) => {
     const el = rootRef.current;
     if (!el) return;
 
+    // Mobile bypass — no intro loader. Title still gets its char
+    // reveal on mount, parallax stays wired, but nothing else is
+    // hidden / orchestrated.
+    const isMobile =
+      typeof window !== 'undefined' && window.matchMedia('(max-width: 768px)').matches;
+    if (isMobile) {
+      const splits: SplitText[] = [];
+      const ctx = gsap.context(() => {
+        el.querySelectorAll<HTMLElement>('.hero__title-line').forEach(
+          (line, i) => {
+            const r = revealTitle(line, {
+              immediate: true,
+              delay: 0.2 + i * 0.1,
+            });
+            if (r) splits.push(r.split);
+          },
+        );
+        if (bgRef.current) {
+          gsap.to(bgRef.current, {
+            scale: 1.1,
+            yPercent: -6,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: el,
+              start: 'top top',
+              end: 'bottom top',
+              scrub: 0.4,
+            },
+          });
+        }
+      }, el);
+      return () => {
+        revertReveals(splits);
+        ctx.revert();
+      };
+    }
+
     // Always start at top so the loader transition plays from zero —
     // even if the browser preserved a scroll position across reload.
     window.scrollTo(0, 0);
     document.body.style.overflow = 'hidden';
+
+    // Grab the header now so we can guarantee it's reset on cleanup —
+    // it lives outside the hero section and is shared across routes,
+    // so we can't rely on gsap.context.revert to always restore its
+    // inline `--clip-r` properly (navigating away mid-animation can
+    // leave the header hidden on the next page otherwise).
+    const headerEl = document.querySelector('.header') as HTMLElement | null;
 
     const splits: SplitText[] = [];
     const ctx = gsap.context(() => {
@@ -110,10 +162,8 @@ const HeroSection = ({ data }: { data: HeroData }) => {
       // Clip-path reveal targets. The header bar is revealed as a
       // single sweep (the white chrome slides in with its contents);
       // the top-cluster cards each get their own sweep.
-      // `.header` lives OUTSIDE the hero-block, so gsap.context's
-      // scoped selectors can't find it — we resolve it via
-      // `document.querySelector` and pass the element directly.
-      const headerEl = document.querySelector('.header') as HTMLElement | null;
+      // `.header` lives OUTSIDE the hero-block — use the element
+      // captured above (outside the context scope) directly.
       gsap.set(
         [headerEl, '.hero__card-tl', '.hero__cluster-tr > *'].filter(Boolean),
         { '--clip-r': '100%' },
@@ -312,6 +362,11 @@ const HeroSection = ({ data }: { data: HeroData }) => {
     }, el);
     return () => {
       document.body.style.overflow = '';
+      // Defensively remove any inline `--clip-r` left on the header —
+      // gsap.context.revert doesn't always clear it if the timeline
+      // was interrupted mid-flight, which would leave the nav
+      // invisible on the next page we land on.
+      headerEl?.style.removeProperty('--clip-r');
       revertReveals(splits);
       ctx.revert();
     };
@@ -425,7 +480,12 @@ const HeroSection = ({ data }: { data: HeroData }) => {
           <div className="hero__loader" aria-hidden="true" ref={loaderRef}>
             <div className="hero__loader-stage" ref={loaderStageRef}>
               <p className="hero__loader-text" ref={loaderTextRef}>
-                {welcomeLine}
+                {welcomeLines.map((line, i) => (
+                  <span key={i}>
+                    {line}
+                    {i < welcomeLines.length - 1 && <br />}
+                  </span>
+                ))}
               </p>
               {/* Frame overlays the text zone exactly — its bounds are
                   the stage's bounds, which are driven by the text

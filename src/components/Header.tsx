@@ -1,4 +1,5 @@
 import { useEffect, useState, type MouseEvent } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { useSiteSettings } from '../providers/ContentProvider';
 import { lenisService } from '../services/lenisService';
@@ -131,20 +132,32 @@ const Header = () => {
         </div>
       </div>
 
-      {/* Mobile drawer */}
-      <nav className="header__mobile" aria-label="Navigation mobile">
-        {nav.map(renderLink)}
-        {airbnbUrl && (
-          <a
-            href={airbnbUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="header__mobile-cta"
+      {/* Mobile drawer — portaled into body so the header's
+          `clip-path` doesn't clip it inside the header bar. The
+          `is-open` class on the body element drives its visibility
+          (set via the effect below) since the drawer is no longer a
+          descendant of `.header.is-open`. */}
+      {typeof document !== 'undefined' &&
+        createPortal(
+          <nav
+            className={`header__mobile ${open ? 'is-open' : ''}`}
+            aria-label="Navigation mobile"
+            aria-hidden={!open}
           >
-            {reserveLabel}
-          </a>
+            {nav.map(renderLink)}
+            {airbnbUrl && (
+              <a
+                href={airbnbUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="header__mobile-cta"
+              >
+                {reserveLabel}
+              </a>
+            )}
+          </nav>,
+          document.body,
         )}
-      </nav>
 
       {/* Preload logo silently if present (for LCP) */}
       {site?.logo?.asset?.url && (

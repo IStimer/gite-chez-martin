@@ -78,6 +78,11 @@
         // grows to the hero__bg's oversized rect) gets clipped at the
         // loader's viewport bounds — nothing leaks beyond.
         contain: paint;
+
+        // Mobile: no intro loader (the hero content shows directly).
+        @media (max-width: $bp-mobile) {
+            display: none;
+        }
     }
 
     // The stage has a fixed photo-like aspect (16:9) — larger than
@@ -206,7 +211,6 @@
     &__cluster-tr {
         display: flex;
         gap: clamp(8px, 0.7vw, 12px);
-        align-items: stretch;
 
         @media (max-width: 640px) {
             align-self: stretch;
@@ -217,11 +221,10 @@
     &__location-pill {
         position: relative;
         display: flex;
+        flex: 1;
         align-items: center;
         gap: clamp(12px, 1vw, 18px);
         background: #ffffff;
-        // Extra bottom padding reserves room for the Détails link
-        // absolutely pinned at the bottom-right corner.
         padding: clamp(12px, 1vw, 16px) clamp(16px, 1.4vw, 22px)
             clamp(26px, 2.4vh, 34px);
         color: var(--color-fg);

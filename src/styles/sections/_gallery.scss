@@ -245,6 +245,30 @@
         align-items: center;
         gap: clamp(14px, 1.6vw, 24px);
         pointer-events: auto;
+
+        // Mobile: dissolve the controls wrapper so children float up to
+        // the stage's positioning context — counter top-right, arrows
+        // stay bottom-right.
+        @media (max-width: $bp-mobile) {
+            display: contents;
+        }
+    }
+
+    @media (max-width: $bp-mobile) {
+        &__counter {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            z-index: 5;
+            pointer-events: auto;
+        }
+        &__arrows {
+            position: absolute;
+            bottom: 14px;
+            right: 14px;
+            z-index: 5;
+            pointer-events: auto;
+        }
     }
 
     &__counter {
