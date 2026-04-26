@@ -1,5 +1,4 @@
-/* eslint-disable react-refresh/only-export-components */
-import { createContext, useLayoutEffect, useState, ReactNode } from 'react';
+import { useLayoutEffect, ReactNode } from 'react';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { lenisService } from '../services/lenisService';
 
@@ -13,26 +12,16 @@ interface LenisOptions {
   [key: string]: any;
 }
 
-interface LenisContextValue {
-  service: typeof lenisService;
-  isActive: boolean;
-}
-
 interface LenisProviderProps {
   options?: LenisOptions;
   children: ReactNode;
 }
 
-export const LenisContext = createContext<LenisContextValue | null>(null);
-
 const DEFAULT_OPTIONS: LenisOptions = {};
 
 const LenisProvider = ({ options = DEFAULT_OPTIONS, children }: LenisProviderProps) => {
-  const [isActive, setIsActive] = useState(false);
-
   useLayoutEffect(() => {
     const instance = lenisService.init(options);
-    setIsActive(!!instance);
     if (instance) ScrollTrigger.refresh();
 
     return () => {
@@ -41,11 +30,7 @@ const LenisProvider = ({ options = DEFAULT_OPTIONS, children }: LenisProviderPro
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  return (
-    <LenisContext.Provider value={{ service: lenisService, isActive }}>
-      {children}
-    </LenisContext.Provider>
-  );
+  return <>{children}</>;
 };
 
 export default LenisProvider;
