@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useReducer } from 'react';
 import { useParams, Navigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import SEO from '../components/SEO';
@@ -11,33 +11,50 @@ import { extractBaseLang } from '../i18n/routes';
 import { pickLocale } from '../i18n/localized';
 import type { SecondaryPage as PageType } from '../types/content';
 
+type FetchState =
+  | { status: 'loading'; page: null }
+  | { status: 'ready'; page: PageType | null };
+
+type FetchAction =
+  | { type: 'reset' }
+  | { type: 'resolve'; page: PageType | null };
+
+const initialState: FetchState = { status: 'loading', page: null };
+
+const reducer = (state: FetchState, action: FetchAction): FetchState => {
+  switch (action.type) {
+    case 'reset':
+      return initialState;
+    case 'resolve':
+      return { status: 'ready', page: action.page };
+    default:
+      return state;
+  }
+};
+
 const SecondaryPage = () => {
   const { slug } = useParams<{ slug: string }>();
   const { i18n } = useTranslation();
   const lang = extractBaseLang(i18n.language);
-  const [page, setPage] = useState<PageType | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [state, dispatch] = useReducer(reducer, initialState);
 
   useEffect(() => {
     if (!slug) {
-      setLoading(false);
+      dispatch({ type: 'resolve', page: null });
       return;
     }
     let cancelled = false;
-    setLoading(true);
-    fetchPageBySlug(slug)
-      .then((p) => {
-        if (!cancelled) setPage(p);
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
+    dispatch({ type: 'reset' });
+    fetchPageBySlug(slug).then((p) => {
+      if (!cancelled) dispatch({ type: 'resolve', page: p });
+    });
     return () => {
       cancelled = true;
     };
   }, [slug]);
 
-  if (loading) return <PageLoader />;
+  if (state.status === 'loading') return <PageLoader />;
+  const page = state.page;
   if (!page) return <Navigate to={`/${lang}`} replace />;
 
   const title = pickLocale(page.title, lang);

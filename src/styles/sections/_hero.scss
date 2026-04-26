@@ -290,6 +290,15 @@
         white-space: nowrap;
         transition: color 0.2s;
 
+        // Reset native button chrome when used as <button>
+        &--btn {
+            background: transparent;
+            border: 0;
+            padding: 0;
+            font: inherit;
+            cursor: pointer;
+        }
+
         &:hover {
             color: var(--color-accent);
         }

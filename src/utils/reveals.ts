@@ -19,7 +19,7 @@ interface BaseRevealOptions {
   immediate?: boolean;
 }
 
-export interface TitleRevealOptions extends BaseRevealOptions {
+interface TitleRevealOptions extends BaseRevealOptions {
   /** Motion duration per char, in seconds. */
   duration?: number;
   /** Stagger between chars inside a line, in seconds. */
@@ -30,7 +30,7 @@ export interface TitleRevealOptions extends BaseRevealOptions {
   rotateMax?: number;
 }
 
-export interface LinesRevealOptions extends BaseRevealOptions {
+interface LinesRevealOptions extends BaseRevealOptions {
   /** Motion duration per line, in seconds. */
   duration?: number;
   /** Stagger between lines, in seconds. */

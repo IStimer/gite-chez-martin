@@ -85,9 +85,10 @@ const PeriodRow = ({
       )}
       {includes.length > 0 && (
         <ul className="pricing__includes">
-          {includes.map((item, i) => (
-            <li key={i}>{pickLocale(item, lang)}</li>
-          ))}
+          {includes.map((item) => {
+            const label = pickLocale(item, lang);
+            return <li key={label}>{label}</li>;
+          })}
         </ul>
       )}
     </div>

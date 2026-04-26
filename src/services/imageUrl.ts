@@ -26,7 +26,7 @@ function resolveAssetSource(src: Source): { url?: string; lqip?: string | null }
   };
 }
 
-export interface ImageUrlOptions {
+interface ImageUrlOptions {
   width?: number;
   height?: number;
   fit?: 'crop' | 'fill' | 'max' | 'clip';

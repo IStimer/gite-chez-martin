@@ -98,8 +98,8 @@ const PresentationSection = ({ data }: { data: Data }) => {
             </p>
           )}
           <h2 className="presentation__title">
-            {titleLines.map((line, i) => (
-              <span key={i} className="presentation__title-line">
+            {titleLines.map((line) => (
+              <span key={line} className="presentation__title-line">
                 {line}
               </span>
             ))}

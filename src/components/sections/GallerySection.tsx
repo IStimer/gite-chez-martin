@@ -206,7 +206,14 @@ const GallerySection = ({ data }: { data: Data }) => {
             role="button"
             tabIndex={0}
             aria-label={lang === 'fr' ? 'Voir toutes les images' : 'See all images'}
-            onClick={() => setIsGrid(true)}
+            // Open the grid only when the click lands outside the
+            // controls area — avoids the stopPropagation pattern on
+            // children (which trips a11y rules for static elements
+            // with click handlers).
+            onClick={(e) => {
+              if ((e.target as HTMLElement).closest('button, .gallery__controls')) return;
+              setIsGrid(true);
+            }}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
@@ -235,11 +242,9 @@ const GallerySection = ({ data }: { data: Data }) => {
               />
             )}
 
-            {/* Controls bottom-right (stopPropagation so click doesn't toggle grid) */}
-            <div
-              className="gallery__controls"
-              onClick={(e) => e.stopPropagation()}
-            >
+            {/* Controls bottom-right — click handling on the parent
+                stage skips this zone via `closest('.gallery__controls')`. */}
+            <div className="gallery__controls">
               <span className="gallery__counter">
                 <span className="gallery__counter-num">{String(current + 1).padStart(2, '0')}</span>
                 <span className="gallery__counter-sep">/</span>
@@ -296,7 +301,7 @@ const GallerySection = ({ data }: { data: Data }) => {
               });
               return (
                 <button
-                  key={i}
+                  key={img.image?.asset?.url ?? `thumb-${i}`}
                   type="button"
                   className={`gallery__thumb ${i === current ? 'is-active' : ''}`}
                   onClick={() => goTo(i)}
@@ -317,7 +322,14 @@ const GallerySection = ({ data }: { data: Data }) => {
         <div
           className="gallery__grid-overlay"
           ref={gridOverlayRef}
-          onClick={() => setIsGrid(false)}
+          // Backdrop click closes — only when clicking the overlay
+          // itself, not its children (no stopPropagation needed).
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setIsGrid(false);
+          }}
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') setIsGrid(false);
+          }}
           role="dialog"
           aria-modal="true"
           aria-label={lang === 'fr' ? 'Toutes les images' : 'All images'}
@@ -325,15 +337,12 @@ const GallerySection = ({ data }: { data: Data }) => {
           <button
             type="button"
             className="gallery__grid-close"
-            onClick={(e) => { e.stopPropagation(); setIsGrid(false); }}
+            onClick={() => setIsGrid(false)}
             aria-label={lang === 'fr' ? 'Fermer' : 'Close'}
           >
             <CloseIcon />
           </button>
-          <div
-            className="gallery__grid-inner"
-            onClick={(e) => e.stopPropagation()}
-          >
+          <div className="gallery__grid-inner">
             {images.map((img, i) => {
               const url = buildImageUrl(img, {
                 width: 900,
@@ -345,7 +354,7 @@ const GallerySection = ({ data }: { data: Data }) => {
               const alt = getAltText(img, '');
               return (
                 <button
-                  key={i}
+                  key={img.image?.asset?.url ?? `grid-${i}`}
                   type="button"
                   className={`gallery__grid-item ${i === current ? 'is-active' : ''}`}
                   onClick={() => {
