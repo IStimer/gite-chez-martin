@@ -157,10 +157,6 @@ const PricingSection = ({ data }: { data: Data }) => {
         <header className="pricing__head">
           {eyebrow && (
             <p className="pricing__eyebrow" data-reveal>
-              <Coquillage
-                className="pricing__eyebrow-mark"
-                variant="rays"
-                />
               <span>{eyebrow}</span>
             </p>
           )}

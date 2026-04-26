@@ -234,10 +234,6 @@ const AccommodationsSection = ({ data }: { data: Data }) => {
         <header className="spaces__head">
           {eyebrow && (
             <p className="spaces__eyebrow" data-reveal>
-              <Coquillage
-                className="spaces__eyebrow-mark"
-                variant="rays"
-                />
               <span>{eyebrow}</span>
             </p>
           )}

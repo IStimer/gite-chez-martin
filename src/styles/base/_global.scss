@@ -137,3 +137,18 @@ main {
   }
 }
 
+// ── SplitText line-mask hardening (used by reveals.ts) ──────────────
+// Extends each line-mask's clip area so accents (é è à ç) and tall
+// glyphs (€, italic display numerals) don't get bitten at the edges.
+// `overflow: clip` + `clip-path: inset(0)` are extra safety nets for
+// the title reveal's rotated chars — harmless on the simple line
+// reveal too.
+.reveal-line-mask {
+  padding-top: 0.18em;
+  padding-bottom: 0.08em;
+  margin-top: -0.18em;
+  margin-bottom: -0.08em;
+  overflow: clip;
+  clip-path: inset(0);
+}
+

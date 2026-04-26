@@ -6,7 +6,6 @@ import type { GallerySection as Data } from '../../types/content';
 import { extractBaseLang } from '../../i18n/routes';
 import { pickLocale } from '../../i18n/localized';
 import { buildImageUrl, getAltText } from '../../services/imageUrl';
-import Coquillage from '../Coquillage';
 import { revealTitle, revealAllInside, revertReveals } from '../../utils/reveals';
 import type { SplitText } from 'gsap/SplitText';
 
@@ -187,10 +186,6 @@ const GallerySection = ({ data }: { data: Data }) => {
         <header className="gallery__head">
           {eyebrow && (
             <p className="gallery__eyebrow" data-reveal>
-              <Coquillage
-                className="gallery__eyebrow-mark"
-                variant="rays"
-                />
               <span>{eyebrow}</span>
             </p>
           )}

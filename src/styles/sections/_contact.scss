@@ -58,8 +58,8 @@
     // Big decorative coquillage watermark behind the content
     &__mark {
         position: absolute;
-        right: -6%;
-        top: 4%;
+        right: 0;
+        top: 0;
         width: clamp(320px, 34vw, 480px);
         height: clamp(320px, 34vw, 480px);
         color: var(--color-accent);

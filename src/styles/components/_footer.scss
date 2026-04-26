@@ -9,19 +9,6 @@
     overflow: hidden;
     isolation: isolate;
 
-    // ── Decorative coquillage watermark behind the wordmark ──────────
-    &__watermark {
-        position: absolute;
-        right: -8%;
-        top: -6%;
-        width: clamp(360px, 40vw, 640px);
-        height: clamp(360px, 40vw, 640px);
-        color: var(--color-accent);
-        opacity: 0.05;
-        z-index: -1;
-        pointer-events: none;
-    }
-
     &__inner {
         padding-inline: var(--edge-padding);
         display: flex;
@@ -64,15 +51,6 @@
         line-height: 0.92;
         letter-spacing: -0.02em;
         color: var(--color-secondary);
-        margin: 0;
-    }
-
-    &__tagline {
-        font-family: var(--font-body);
-        font-size: clamp(14px, 1.1vw, 16px);
-        line-height: 1.55;
-        color: rgba(var(--rgb-secondary), 0.72);
-        max-width: 520px;
         margin: 0;
     }
 

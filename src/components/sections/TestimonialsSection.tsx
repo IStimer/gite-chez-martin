@@ -11,7 +11,6 @@ import { pickLocale } from '../../i18n/localized';
 import { buildImageUrl } from '../../services/imageUrl';
 import { useSiteSettings } from '../../providers/ContentProvider';
 import { fetchGoogleReviews } from '../../services/googleReviewsService';
-import Coquillage from '../Coquillage';
 import { revealTitle, revealAllInside, revertReveals } from '../../utils/reveals';
 import type { SplitText } from 'gsap/SplitText';
 
@@ -203,10 +202,6 @@ const TestimonialsSection = ({ data }: { data: Data }) => {
         <header className="testimonials__head">
           {eyebrow && (
             <p className="testimonials__eyebrow" data-reveal>
-              <Coquillage
-                className="testimonials__eyebrow-mark"
-                variant="rays"
-                />
               <span>{eyebrow}</span>
             </p>
           )}

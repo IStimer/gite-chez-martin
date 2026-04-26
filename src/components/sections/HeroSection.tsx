@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { DrawSVGPlugin } from 'gsap/DrawSVGPlugin';
 import type { HeroSection as HeroData } from '../../types/content';
 import { extractBaseLang } from '../../i18n/routes';
 import { pickLocale } from '../../i18n/localized';
@@ -13,7 +14,7 @@ import Coquillage from '../Coquillage';
 import { revealTitle, revealLines, revertReveals } from '../../utils/reveals';
 import type { SplitText } from 'gsap/SplitText';
 
-if (typeof window !== 'undefined') gsap.registerPlugin(ScrollTrigger);
+if (typeof window !== 'undefined') gsap.registerPlugin(ScrollTrigger, DrawSVGPlugin);
 
 const HouseIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -117,6 +118,26 @@ const HeroSection = ({ data }: { data: HeroData }) => {
             if (r) splits.push(r.split);
           },
         );
+        // Ornament — drawn in like on desktop, just without the loader
+        // gating it.
+        gsap.set('.hero__ornament-shell path', { drawSVG: 0 });
+        gsap.set('.hero__ornament-line', {
+          scaleX: 0,
+          transformOrigin: 'left center',
+        });
+        gsap.to('.hero__ornament-shell path', {
+          drawSVG: '100%',
+          duration: 0.9,
+          stagger: 0.05,
+          ease: 'power2.out',
+          delay: 0.4,
+        });
+        gsap.to('.hero__ornament-line', {
+          scaleX: 1,
+          duration: 0.9,
+          ease: 'power3.inOut',
+          delay: 0.65,
+        });
         if (bgRef.current) {
           gsap.to(bgRef.current, {
             scale: 1.1,
@@ -155,10 +176,17 @@ const HeroSection = ({ data }: { data: HeroData }) => {
       // *after* the loader exits — prevents the flash of natural
       // content that would otherwise appear.
       gsap.set(
-        '.hero__title-line, .hero__ornament, .hero__scroll-btn, .hero__overlay',
+        '.hero__title-line, .hero__scroll-btn, .hero__overlay',
         { autoAlpha: 0 },
       );
-      gsap.set('.hero__ornament', { x: -40 });
+      // Ornament: SVG paths drawn in via DrawSVG, line scaled in from
+      // the left — no fade/translate, the strokes appear as if hand-
+      // drawn next to the bar.
+      gsap.set('.hero__ornament-shell path', { drawSVG: 0 });
+      gsap.set('.hero__ornament-line', {
+        scaleX: 0,
+        transformOrigin: 'left center',
+      });
       // Clip-path reveal targets. The header bar is revealed as a
       // single sweep (the white chrome slides in with its contents);
       // the top-cluster cards each get their own sweep.
@@ -348,14 +376,33 @@ const HeroSection = ({ data }: { data: HeroData }) => {
             },
             '<',
           )
+          // Draw the shell rays one after the other, then sweep the
+          // line from its left edge to the right.
           .to(
-            '.hero__ornament',
-            { autoAlpha: 1, x: 0, duration: 1.0, ease: 'expo.out' },
+            '.hero__ornament-shell path',
+            {
+              drawSVG: '100%',
+              duration: 0.9,
+              stagger: 0.05,
+              ease: 'power2.out',
+            },
             '<',
           )
           .to(
+            '.hero__ornament-line',
+            {
+              scaleX: 1,
+              duration: 0.9,
+              ease: 'power3.inOut',
+            },
+            '<0.25',
+          )
+          .to(
             '.hero__scroll-btn',
-            { autoAlpha: 1, y: 0, duration: 0.9, ease: 'expo.out' },
+            // Opacity-only — never touch transform here so the CSS
+            // `translateY(50%)` stays in effect (and the hover state
+            // can override it without fighting an inline transform).
+            { autoAlpha: 1, duration: 0.9, ease: 'expo.out' },
             '-=0.4',
           );
       });

@@ -6,7 +6,6 @@ import type { PresentationSection as Data } from '../../types/content';
 import { extractBaseLang } from '../../i18n/routes';
 import { pickLocale } from '../../i18n/localized';
 import LocalizedPortableText from '../LocalizedPortableText';
-import Coquillage from '../Coquillage';
 import { buildImageUrl, getLqip, getAltText } from '../../services/imageUrl';
 import { revealTitle, revealAllInside, revertReveals } from '../../utils/reveals';
 import type { SplitText } from 'gsap/SplitText';
@@ -95,10 +94,6 @@ const PresentationSection = ({ data }: { data: Data }) => {
         <header className="presentation__head">
           {eyebrow && (
             <p className="presentation__eyebrow" data-reveal>
-              <Coquillage
-                className="presentation__eyebrow-mark"
-                variant="rays"
-                />
               <span>{eyebrow}</span>
             </p>
           )}

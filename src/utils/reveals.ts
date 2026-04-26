@@ -53,34 +53,6 @@ function buildScrollTrigger(
   };
 }
 
-/**
- * Harden every line-mask wrapper created by SplitText (parent of each
- * `.reveal-line`). Two defences stacked:
- *   1. padding + negative margin extends the clip area so accents and
- *      descenders aren't bitten by tight display line-heights;
- *   2. `overflow: clip` + `clip-path: inset(0)` catches rotated char
- *      corners that would otherwise poke out during the reveal.
- *
- * Only applied to `revealTitle` (char-level with rotation). Line-only
- * reveals don't need it — SplitText's default mask wrapper is enough.
- */
-function hardenMasks(
-  el: HTMLElement,
-  padTop = '0.16em',
-  padBottom = '0.1em',
-) {
-  el.querySelectorAll<HTMLElement>('.reveal-line').forEach((line) => {
-    const mask = line.parentElement;
-    if (!mask) return;
-    mask.style.paddingTop = padTop;
-    mask.style.paddingBottom = padBottom;
-    mask.style.marginTop = `-${padTop}`;
-    mask.style.marginBottom = `-${padBottom}`;
-    mask.style.overflow = 'clip';
-    mask.style.clipPath = 'inset(0)';
-  });
-}
-
 // ── Public API ──────────────────────────────────────────────────────
 
 /**
@@ -110,7 +82,8 @@ export function revealTitle(
     linesClass: 'reveal-line',
     charsClass: 'reveal-char',
   });
-  hardenMasks(el);
+  // Mask hardening (padding + clip safety) lives in CSS on
+  // `.reveal-line-mask` — see src/styles/base/_global.scss.
 
   const lastIdx = Math.max(split.chars.length - 1, 1);
   const rotateMax = options.rotateMax ?? 18;

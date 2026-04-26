@@ -123,10 +123,6 @@ const ContactSection = ({ data }: { data: Data }) => {
         <header className="contact__head">
           {eyebrow && (
             <p className="contact__eyebrow" data-reveal>
-              <Coquillage
-                className="contact__eyebrow-mark"
-                variant="rays"
-                />
               <span>{eyebrow}</span>
             </p>
           )}

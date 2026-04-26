@@ -58,23 +58,11 @@ const Coquillage = ({
       strokeLinejoin="round"
     >
       {variant === 'full' && (
-        <>
-          <path
-            d="M32 54 L26 48 Q32 50 38 48 Z"
-            fill="currentColor"
-            stroke="none"
-          />
-          <path
-            d="M6 28
-               Q10 14 24 8
-               Q32 6 40 8
-               Q54 14 58 28
-               Q52 22 44 22
-               Q38 22 32 26
-               Q26 22 20 22
-               Q12 22 6 28 Z"
-          />
-        </>
+        <path
+          d="M32 54 L26 48 Q32 50 38 48 Z"
+          fill="currentColor"
+          stroke="none"
+        />
       )}
       {RAY_ANGLES.map((angle) => (
         <path key={angle} d={rayPath(angle)} />

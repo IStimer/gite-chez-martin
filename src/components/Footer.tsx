@@ -11,7 +11,6 @@ const Footer = () => {
   const site = useSiteSettings();
 
   const siteName = pickLocale(site?.siteName, lang) || 'Gîte chez Martin';
-  const tagline = pickLocale(site?.tagline, lang);
   const copyright =
     pickLocale(site?.copyright, lang) ||
     `© ${new Date().getFullYear()} ${siteName}`;
@@ -22,15 +21,12 @@ const Footer = () => {
 
   return (
     <footer className="footer">
-      <Coquillage className="footer__watermark" />
-
       <div className="footer__inner">
         {/* ── Wordmark ─────────────────────────────────────── */}
         <div className="footer__wordmark">
           <h2 className="footer__name" aria-label={siteName}>
             {siteName}
           </h2>
-          {tagline && <p className="footer__tagline">{tagline}</p>}
         </div>
 
         {/* ── Ornamental divider (coquillage + diamond + lines) ── */}

@@ -175,10 +175,6 @@ const ActivitiesSection = ({ data }: { data: Data }) => {
         <header className="activities__head">
           {eyebrow && (
             <p className="activities__eyebrow" data-reveal>
-              <Coquillage
-                className="activities__eyebrow-mark"
-                variant="rays"
-                />
               <span>{eyebrow}</span>
             </p>
           )}
