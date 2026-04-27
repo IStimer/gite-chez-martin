@@ -319,6 +319,7 @@ export interface SiteSettings {
     airbnb?: string | null;
     googleBusiness?: string | null;
     bookingCom?: string | null;
+    facebook?: string | null;
   } | null;
   theme?: Theme | null;
   socialImage?: SanityImage | null;

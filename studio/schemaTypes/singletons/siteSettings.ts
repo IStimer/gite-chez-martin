@@ -96,6 +96,11 @@ export const siteSettings = defineType({
           title: 'Annonce Booking',
           type: 'url',
         }),
+        defineField({
+          name: 'facebook',
+          title: 'Page Facebook',
+          type: 'url',
+        }),
       ],
     }),
     defineField({

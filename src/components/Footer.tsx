@@ -109,7 +109,19 @@ const Footer = () => {
                     rel="noopener noreferrer"
                     className="footer__link"
                   >
-                    Google Business
+                    Google
+                  </a>
+                </li>
+              )}
+              {site?.externalLinks?.facebook && (
+                <li>
+                  <a
+                    href={site.externalLinks.facebook}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="footer__link"
+                  >
+                    Facebook
                   </a>
                 </li>
               )}
