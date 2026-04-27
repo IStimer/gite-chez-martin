@@ -99,7 +99,8 @@ export const useHeroIntro = ({
       };
     }
 
-    // Always start at top so the loader transition plays from zero.
+    // Belt-and-suspenders for any edge case the index.html script missed
+    // (e.g. anchor jump on cold load, restored hash).
     window.scrollTo(0, 0);
     document.body.style.overflow = 'hidden';
 

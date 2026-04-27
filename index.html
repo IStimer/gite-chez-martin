@@ -9,6 +9,13 @@
         <title>Gîte chez Martin</title>
         <link rel="preload" href="/fonts/PPEditorialNew-Regular.otf" as="font" type="font/otf" crossorigin />
         <link rel="preload" href="/fonts/PPEditorialNew-Ultrabold.otf" as="font" type="font/otf" crossorigin />
+        <script>
+            // Disable the browser's default scroll restoration so a refresh
+            // mid-page doesn't leave us scrolled while the hero intro plays.
+            // Must run before React mounts.
+            if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+            window.scrollTo(0, 0);
+        </script>
     </head>
     <body>
         <div id="root"></div>
