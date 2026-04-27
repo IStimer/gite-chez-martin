@@ -93,7 +93,7 @@
     // surrounding zone.
     &__loader-stage {
         position: relative;
-        width: min(640px, 80vw);
+        width: min(720px, 86vw);
         aspect-ratio: 16 / 9;
         max-height: 55vh;
         display: grid;
@@ -103,11 +103,11 @@
     &__loader-text {
         position: relative;
         margin: 0;
-        padding-inline: clamp(20px, 3vw, 44px);
+        padding-inline: clamp(16px, 2.4vw, 36px);
         font-family: var(--font-display);
         font-style: italic;
         font-weight: 400;
-        font-size: clamp(20px, 2.6vw, 32px);
+        font-size: clamp(18px, 2.2vw, 28px);
         line-height: 1.4;
         letter-spacing: -0.005em;
         color: var(--color-primary);
