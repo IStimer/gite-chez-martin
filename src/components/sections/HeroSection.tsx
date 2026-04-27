@@ -26,16 +26,18 @@ const HeroSection = ({ data }: { data: HeroData }) => {
   const id = data.sectionId || 'accueil';
   const titleRaw = pickLocale(data.title, lang) || '';
   const brand = pickLocale(site?.siteName, lang) || 'Gîte chez Martin';
+  //   (NBSP) glues "chemin de Compostelle" / "Compostela Way"
+  // so Compostelle never ends up orphaned on its own line.
   const welcomeLines =
     lang === 'fr'
       ? [
           `Bienvenue au ${brand}.`,
-          'Un havre sur le chemin de Compostelle.',
+          'Un havre sur le chemin de Compostelle.',
           'Prenez le temps, installez-vous.',
         ]
       : [
           `Welcome to ${brand}.`,
-          'A haven on the Compostela Way.',
+          'A haven on the Compostela Way.',
           'Take your time, settle in.',
         ];
   const titleLines = titleRaw.split(/\r?\n/).filter(Boolean);
