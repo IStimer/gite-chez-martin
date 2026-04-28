@@ -85,18 +85,10 @@ const ContactSection = ({ data }: { data: Data }) => {
         stagger: 0.08,
         scrollTrigger: { trigger: el, start: 'top 78%', once: true },
       });
-      // Only animate clip-path, never opacity — avoids the map staying
-      // hidden if ScrollTrigger misses the refresh window.
-      gsap.fromTo(
-        el.querySelector('.contact__map'),
-        { clipPath: 'inset(8% 8% 8% 8%)' },
-        {
-          clipPath: 'inset(0%)',
-          duration: 1.3,
-          ease: 'expo.out',
-          scrollTrigger: { trigger: el, start: 'top 78%', once: true },
-        },
-      );
+      // The map gets the standard data-reveal opacity+y above. We deliberately
+      // skip a clip-path animation here — earlier attempts left the iframe
+      // visually rognée when ScrollTrigger fired late (refresh mid-page,
+      // navigation to #contact, etc.).
       gsap.from(el.querySelector('.contact__mark'), {
         opacity: 0,
         scale: 0.6,
@@ -132,7 +124,9 @@ const ContactSection = ({ data }: { data: Data }) => {
 
         <div className="contact__grid">
           {/* Left: Map */}
-          <div className="contact__map" data-reveal>
+          {/* No data-reveal: gsap.from + iframes was leaving the map
+              clipped/hidden when ScrollTrigger fired late on refresh. */}
+          <div className="contact__map">
             {mapUrl ? (
               <iframe
                 src={mapUrl}
