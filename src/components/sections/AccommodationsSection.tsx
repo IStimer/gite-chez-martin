@@ -104,6 +104,23 @@ const Chapter = ({
               scrollTrigger: { trigger: fig, start: 'top 82%', once: true },
             },
           );
+          // Scroll-driven parallax. Img CSS overscans the figure by 8%
+          // top + bottom, so yPercent ±4 translates ~4.6% of figure
+          // height — gentle drift, never reveals the figure's bg edge.
+          gsap.fromTo(
+            img,
+            { yPercent: 4 },
+            {
+              yPercent: -4,
+              ease: 'none',
+              scrollTrigger: {
+                trigger: fig,
+                start: 'top bottom',
+                end: 'bottom top',
+                scrub: 0.4,
+              },
+            },
+          );
         }
       }
     }, el);

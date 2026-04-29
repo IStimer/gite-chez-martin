@@ -4,6 +4,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { DrawSVGPlugin } from 'gsap/DrawSVGPlugin';
 import { SplitText } from 'gsap/SplitText';
 import { revealTitle, revealLines, revertReveals } from '../../../utils/reveals';
+import { fontsReady } from '../../../utils/fontsReady';
 
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger, DrawSVGPlugin);
@@ -21,7 +22,7 @@ interface IntroRefs {
 
 const wireParallax = (el: HTMLElement, bg: HTMLElement) => {
   gsap.to(bg, {
-    scale: 1.1,
+    scale: 1.15,
     yPercent: -6,
     ease: 'none',
     scrollTrigger: {
@@ -81,15 +82,19 @@ export const useHeroIntro = ({
     if (isMobile) {
       const splits: SplitText[] = [];
       const ctx = gsap.context(() => {
-        el.querySelectorAll<HTMLElement>('.hero__title-line').forEach(
-          (line, i) => {
-            const r = revealTitle(line, {
-              immediate: true,
-              delay: 0.2 + i * 0.1,
-            });
-            if (r) splits.push(r.split);
-          },
-        );
+        // Gate the title split on font readiness — running SplitText
+        // before the font swaps causes the chars to re-wrap mid-reveal.
+        fontsReady().then(() => {
+          el.querySelectorAll<HTMLElement>('.hero__title-line').forEach(
+            (line, i) => {
+              const r = revealTitle(line, {
+                immediate: true,
+                delay: 0.2 + i * 0.1,
+              });
+              if (r) splits.push(r.split);
+            },
+          );
+        });
         drawOrnament(0.4);
         if (bgRef.current) wireParallax(el, bgRef.current);
       }, el);
@@ -134,16 +139,27 @@ export const useHeroIntro = ({
         loaderStageRef.current.style.aspectRatio = `${endRect.width} / ${endRect.height}`;
       }
 
-      const textReveal = revealLines(loaderTextRef.current, {
-        immediate: true,
-        duration: 0.75,
-        stagger: 0.1,
+      // Hold the welcome text invisible until fonts are ready, then
+      // split + animate. SplitText needs the final font metrics at the
+      // moment it runs; running it on Georgia and swapping mid-animation
+      // produces a re-wrap stutter.
+      gsap.set(loaderTextRef.current, { autoAlpha: 0 });
+      const fontsLoaded = fontsReady();
+      fontsLoaded.then(() => {
+        if (!loaderTextRef.current) return;
+        gsap.set(loaderTextRef.current, { autoAlpha: 1 });
+        const textReveal = revealLines(loaderTextRef.current, {
+          immediate: true,
+          duration: 0.75,
+          stagger: 0.1,
+        });
+        if (textReveal) splits.push(textReveal.split);
       });
-      if (textReveal) splits.push(textReveal.split);
 
       if (bgRef.current) wireParallax(el, bgRef.current);
 
-      // Wait for the loader image + a min display time before the exit.
+      // Wait for the loader image + a min display time + fonts before
+      // starting the exit timeline. Hard timeout caps the wait at 6s.
       const loaderImg = loaderImageRef.current;
       const imageLoaded = new Promise<void>((resolve) => {
         if (!loaderImg || loaderImg.complete) {
@@ -157,7 +173,7 @@ export const useHeroIntro = ({
       const timeout = new Promise<void>((resolve) => window.setTimeout(resolve, 6000));
 
       Promise.race([
-        Promise.all([imageLoaded, minTime]).then(() => undefined),
+        Promise.all([imageLoaded, minTime, fontsLoaded]).then(() => undefined),
         timeout,
       ]).then(() => {
         const tl = gsap.timeline({
@@ -207,6 +223,9 @@ export const useHeroIntro = ({
           // Phase 4: overlay + content cascade.
           .to('.hero__overlay', { autoAlpha: 1, duration: 0.9, ease: 'power2.out' })
           .add(() => {
+            // Fonts are guaranteed ready by now (the timeline gate
+            // already awaited fontsLoaded), so revealTitle's SplitText
+            // measures with the final PP Editorial New metrics.
             el.querySelectorAll<HTMLElement>('.hero__title-line').forEach(
               (line, i) => {
                 gsap.set(line, { autoAlpha: 1 });

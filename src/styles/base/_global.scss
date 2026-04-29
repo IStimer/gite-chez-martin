@@ -33,7 +33,10 @@
   --rgb-fg: 34, 37, 74;
 
   // Typography
-  --font-display: "Cormorant Garamond", "PP Editorial New", Georgia, serif;
+  // Cormorant Garamond was leading this stack but we never load it,
+  // causing inconsistent fallbacks (system Cormorant on some Macs, plain
+  // Georgia elsewhere). PP Editorial New is the only display we ship.
+  --font-display: "PP Editorial New", Georgia, serif;
   --font-body: "Inter", "Helvetica Neue", Helvetica, Arial, sans-serif;
   --font-mono: "JetBrains Mono", "SF Mono", Menlo, monospace;
 

@@ -14,12 +14,18 @@
   font-display: swap;
 }
 
+// Critical weights (Regular, Italic, Ultrabold) use `font-display: block`
+// — text stays invisible briefly until the font is ready, instead of
+// flashing in fallback Georgia and swapping mid-animation. Combined with
+// the preloads in index.html and the document.fonts.ready gate in
+// useHeroIntro, this prevents the layout-shift / re-split that happens
+// when SplitText measures fallback metrics first.
 @font-face {
   font-family: "PP Editorial New";
   src: url("/fonts/PPEditorialNew-Regular.otf") format("opentype");
   font-weight: 400;
   font-style: normal;
-  font-display: swap;
+  font-display: block;
 }
 
 @font-face {
@@ -27,7 +33,7 @@
   src: url("/fonts/PPEditorialNew-Italic.otf") format("opentype");
   font-weight: 400;
   font-style: italic;
-  font-display: swap;
+  font-display: block;
 }
 
 @font-face {
@@ -35,7 +41,7 @@
   src: url("/fonts/PPEditorialNew-Ultrabold.otf") format("opentype");
   font-weight: 800;
   font-style: normal;
-  font-display: swap;
+  font-display: block;
 }
 
 @font-face {
