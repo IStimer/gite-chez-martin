@@ -1,5 +1,6 @@
 import { defineField, defineType } from 'sanity';
 import { HomeIcon } from '@sanity/icons';
+import { orderRankField } from '@sanity/orderable-document-list';
 
 const EQUIPMENT_OPTIONS = [
   { title: 'Wifi', value: 'wifi' },
@@ -36,6 +37,7 @@ export const accommodation = defineType({
     { name: 'admin', title: 'Administration', options: { collapsible: true, collapsed: true } },
   ],
   fields: [
+    orderRankField({ type: 'accommodation' }),
     defineField({
       name: 'name',
       title: 'Nom',

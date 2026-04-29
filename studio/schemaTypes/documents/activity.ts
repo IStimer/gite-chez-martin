@@ -1,5 +1,6 @@
 import { defineField, defineType } from 'sanity';
 import { PinIcon } from '@sanity/icons';
+import { orderRankField } from '@sanity/orderable-document-list';
 
 export const activity = defineType({
   name: 'activity',
@@ -7,6 +8,7 @@ export const activity = defineType({
   type: 'document',
   icon: PinIcon,
   fields: [
+    orderRankField({ type: 'activity' }),
     defineField({
       name: 'name',
       title: 'Nom',

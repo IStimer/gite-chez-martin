@@ -1,5 +1,6 @@
 import { defineField, defineType } from 'sanity';
 import { StarIcon } from '@sanity/icons';
+import { orderRankField } from '@sanity/orderable-document-list';
 
 export const testimonial = defineType({
   name: 'testimonial',
@@ -7,6 +8,7 @@ export const testimonial = defineType({
   type: 'document',
   icon: StarIcon,
   fields: [
+    orderRankField({ type: 'testimonial' }),
     defineField({
       name: 'authorName',
       title: 'Nom de l’auteur',

@@ -1,5 +1,6 @@
 import { defineField, defineType } from 'sanity';
 import { TagIcon } from '@sanity/icons';
+import { orderRankField } from '@sanity/orderable-document-list';
 
 export const pricingPeriod = defineType({
   name: 'pricingPeriod',
@@ -7,6 +8,7 @@ export const pricingPeriod = defineType({
   type: 'document',
   icon: TagIcon,
   fields: [
+    orderRankField({ type: 'pricingPeriod' }),
     defineField({
       name: 'name',
       title: 'Nom',

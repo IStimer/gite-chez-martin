@@ -110,9 +110,6 @@ const HOME_QUERY = /* groq */ `
   {
     "siteSettings": *[_id == "siteSettings"][0]{
       ...,
-      "logo": logo{ ${IMAGE_META} },
-      "coquillageIcon": coquillageIcon{ ${IMAGE_META} },
-      "favicon": favicon{ ${IMAGE_META} },
       "socialImage": socialImage{ ${IMAGE_META} },
       "defaultSeo": defaultSeo{
         ...,

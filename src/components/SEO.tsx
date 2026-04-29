@@ -79,10 +79,6 @@ const SEO = ({ title: titleProp, description: descProp, path, image, type = 'web
       <link rel="canonical" href={homePage?.seo?.canonicalUrl || url} />
       {noIndex && <meta name="robots" content="noindex,nofollow" />}
 
-      {siteSettings?.favicon?.asset?.url && (
-        <link rel="icon" href={siteSettings.favicon.asset.url} />
-      )}
-
       <meta property="og:title" content={fullTitle} />
       <meta property="og:description" content={seoDescription} />
       <meta property="og:url" content={url} />

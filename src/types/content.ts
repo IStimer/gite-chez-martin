@@ -309,9 +309,6 @@ export interface SiteSettings {
   _type: 'siteSettings';
   siteName: LocaleString;
   tagline?: LocaleString | null;
-  logo?: SanityImage | null;
-  coquillageIcon?: SanityImage | null;
-  favicon?: SanityImage | null;
   email: string;
   phone?: string | null;
   address?: LocaleText | null;

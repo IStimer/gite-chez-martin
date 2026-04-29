@@ -31,27 +31,11 @@ export const siteSettings = defineType({
       type: 'localeString',
       group: 'identity',
     }),
-    defineField({
-      name: 'logo',
-      title: 'Logo',
-      type: 'image',
-      options: { hotspot: false },
-      group: 'identity',
-    }),
-    defineField({
-      name: 'coquillageIcon',
-      title: 'Symbole coquillage',
-      description: 'Icône coquillage Saint-Jacques utilisée dans la signalétique du site.',
-      type: 'image',
-      group: 'identity',
-    }),
-    defineField({
-      name: 'favicon',
-      title: 'Favicon',
-      description: 'Petite icône affichée dans l’onglet du navigateur. 512×512 recommandé.',
-      type: 'image',
-      group: 'identity',
-    }),
+    // (Logo, coquillageIcon and favicon were removed: the front uses a
+    // static `/favicon.svg` and the brand mark is rendered as inline
+    // text + the inline `<Coquillage>` SVG component — no CMS-driven
+    // image is needed here. Adding them back is trivial if a future
+    // need arises.)
     // CONTACT
     defineField({
       name: 'email',
@@ -295,12 +279,11 @@ export const siteSettings = defineType({
     }),
   ],
   preview: {
-    select: { title: 'siteName.fr', media: 'logo' },
-    prepare({ title, media }) {
+    select: { title: 'siteName.fr' },
+    prepare({ title }) {
       return {
         title: title || 'Paramètres du site',
         subtitle: 'Singleton',
-        media,
       };
     },
   },

@@ -5,7 +5,6 @@ import { useSiteSettings } from '../providers/ContentProvider';
 import { lenisService } from '../services/lenisService';
 import { extractBaseLang } from '../i18n/routes';
 import { pickLocale } from '../i18n/localized';
-import { urlFor } from '../services/sanityClient';
 import type { Link as CmsLink } from '../types/content';
 
 const Header = () => {
@@ -159,14 +158,6 @@ const Header = () => {
           document.body,
         )}
 
-      {/* Preload logo silently if present (for LCP) */}
-      {site?.logo?.asset?.url && (
-        <link
-          rel="preload"
-          as="image"
-          href={urlFor(site.logo.asset.url).width(280).format('webp').url()}
-        />
-      )}
     </header>
   );
 };
