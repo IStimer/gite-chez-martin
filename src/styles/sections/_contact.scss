@@ -107,6 +107,11 @@
         }
 
         iframe {
+            // Absolute fill is the only layout that survives every edge case:
+            // grid row stretching, late iframe load, GSAP transforms, mobile
+            // viewport resize. Anything else can leave gaps around the map.
+            position: absolute;
+            inset: 0;
             width: 100%;
             height: 100%;
             border: 0;
