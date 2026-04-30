@@ -246,6 +246,9 @@
     }
 
     // ── Auto-advance progress bar at the bottom of the active card ──
+    // The bar is always mounted while a card is active; hovering the
+    // section toggles `data-paused` on the parent which freezes the
+    // animation in place rather than restarting it.
     &__progress {
         position: absolute;
         left: 0;
@@ -255,6 +258,10 @@
         background: var(--color-accent);
         animation: testimonialProgress linear forwards;
         pointer-events: none;
+    }
+
+    .testimonials[data-paused='true'] &__progress {
+        animation-play-state: paused;
     }
 
     // ── Collapsed hover state ───────────────────────────────────────

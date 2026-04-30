@@ -90,6 +90,10 @@
     transition: color 0.25s;
     cursor: pointer;
 
+    // Underline sweep direction is driven by `data-scroll-dir` on the
+    // header. Scrolling down: enter L→R (origin left growing, origin
+    // right shrinking — both leading edges move right). Scrolling up:
+    // mirror it so the motion follows the scroll (R→L).
     &::after {
       content: '';
       position: absolute;
@@ -99,7 +103,7 @@
       background: currentColor;
       transform: scaleX(0);
       transform-origin: right center;
-      transition: transform 0.4s $ease-out-expo;
+      transition: transform 0.45s $ease-out-expo;
     }
 
     &:hover::after,
@@ -109,6 +113,17 @@
     }
 
     &.is-active { color: var(--color-accent); }
+  }
+
+  // Scrolling up — reverse the sweep so it travels R→L.
+  &[data-scroll-dir='up'] &__link {
+    &::after {
+      transform-origin: left center;
+    }
+    &:hover::after,
+    &.is-active::after {
+      transform-origin: right center;
+    }
   }
 
   &__actions {

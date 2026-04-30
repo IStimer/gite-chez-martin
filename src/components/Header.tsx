@@ -13,12 +13,36 @@ const Header = () => {
   const site = useSiteSettings();
   const [open, setOpen] = useState(false);
   const [activeAnchor, setActiveAnchor] = useState<string | null>(null);
+  const [scrollDir, setScrollDir] = useState<'down' | 'up'>('down');
 
   // Close mobile nav on resize out of mobile
   useEffect(() => {
     const onResize = () => { if (window.innerWidth > 768) setOpen(false); };
     window.addEventListener('resize', onResize);
     return () => window.removeEventListener('resize', onResize);
+  }, []);
+
+  // Track scroll direction so the link underline can sweep L→R when
+  // scrolling down and R→L when scrolling up. A small threshold avoids
+  // direction flips from sub-pixel jitter at scroll boundaries.
+  useEffect(() => {
+    let lastY = window.scrollY;
+    let ticking = false;
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        const y = window.scrollY;
+        const delta = y - lastY;
+        if (Math.abs(delta) > 4) {
+          setScrollDir(delta > 0 ? 'down' : 'up');
+          lastY = y;
+        }
+        ticking = false;
+      });
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
   // Observe sections to highlight active anchor
@@ -93,7 +117,10 @@ const Header = () => {
   const reserveLabel = lang === 'fr' ? 'Réserver' : 'Booking';
 
   return (
-    <header className={`header ${open ? 'is-open' : ''}`}>
+    <header
+      className={`header ${open ? 'is-open' : ''}`}
+      data-scroll-dir={scrollDir}
+    >
       <div className="header__inner">
         <a
           href="#accueil"

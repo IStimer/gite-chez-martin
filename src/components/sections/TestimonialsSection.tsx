@@ -140,13 +140,48 @@ const TestimonialsSection = ({ data }: { data: Data }) => {
     if (active >= total) setActive(0);
   }, [total, active]);
 
+  // Auto-advance timer that pauses on hover *without* resetting. We
+  // track elapsed time in a ref and, on resume, only schedule for the
+  // remaining slice — so brief mouse-over moments don't keep pushing
+  // the next advance back to a full AUTO_ADVANCE_MS.
+  const timerRef = useRef<number | null>(null);
+  const startedAtRef = useRef<number>(0);
+  const remainingRef = useRef<number>(AUTO_ADVANCE_MS);
+  const prevActiveRef = useRef<number>(active);
+
   useEffect(() => {
-    if (paused || total < 2) return;
-    const id = window.setInterval(() => {
+    if (total < 2) return;
+
+    // Reset budget only when the active card actually changes —
+    // toggling `paused` on hover must not reset it.
+    if (prevActiveRef.current !== active) {
+      remainingRef.current = AUTO_ADVANCE_MS;
+      prevActiveRef.current = active;
+    }
+
+    if (paused) {
+      if (timerRef.current != null) {
+        window.clearTimeout(timerRef.current);
+        timerRef.current = null;
+        const elapsed = performance.now() - startedAtRef.current;
+        remainingRef.current = Math.max(0, remainingRef.current - elapsed);
+      }
+      return;
+    }
+
+    startedAtRef.current = performance.now();
+    timerRef.current = window.setTimeout(() => {
+      timerRef.current = null;
       setActive((i) => (i + 1) % total);
-    }, AUTO_ADVANCE_MS);
-    return () => window.clearInterval(id);
-  }, [paused, total]);
+    }, remainingRef.current);
+
+    return () => {
+      if (timerRef.current != null) {
+        window.clearTimeout(timerRef.current);
+        timerRef.current = null;
+      }
+    };
+  }, [active, total, paused]);
 
   // Section header reveal
   useLayoutEffect(() => {
@@ -192,11 +227,8 @@ const TestimonialsSection = ({ data }: { data: Data }) => {
     <section
       id={data.sectionId || 'avis'}
       className="testimonials"
+      data-paused={paused ? 'true' : 'false'}
       ref={rootRef}
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
-      onFocus={() => setPaused(true)}
-      onBlur={() => setPaused(false)}
     >
       <div className="testimonials__inner">
         <header className="testimonials__head">
@@ -227,11 +259,15 @@ const TestimonialsSection = ({ data }: { data: Data }) => {
               <li
                 key={item._id}
                 className={`testimonial ${isActive ? 'testimonial--active' : ''}`}
+                onMouseEnter={() => setPaused(true)}
+                onMouseLeave={() => setPaused(false)}
               >
                 <button
                   type="button"
                   className="testimonial__btn"
                   onClick={() => setActive(i)}
+                  onFocus={() => setPaused(true)}
+                  onBlur={() => setPaused(false)}
                   aria-expanded={isActive}
                   aria-label={
                     isActive
@@ -269,7 +305,7 @@ const TestimonialsSection = ({ data }: { data: Data }) => {
                   </footer>
                 </button>
 
-                {isActive && total > 1 && !paused && (
+                {isActive && total > 1 && (
                   <span
                     key={`${item._id}-progress-${active}`}
                     className="testimonial__progress"
